@@ -1,0 +1,12 @@
+{
+  "name": "elos-imobiliaria",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site institucional da Elos Imobiliária (HTML/CSS/JS estático)",
+  "scripts": {
+    "dev": "serve . -l 3000"
+  },
+  "devDependencies": {
+    "serve": "^14.2.3"
+  }
+}

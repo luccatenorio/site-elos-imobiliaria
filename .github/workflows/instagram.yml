@@ -1,0 +1,52 @@
+name: Sincronizar feed do Instagram
+
+# Roda todo dia às 09:00 UTC (06:00 em Brasília) e também sob demanda,
+# pelo botão "Run workflow" na aba Actions.
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+# Precisa escrever no repositório para commitar o JSON e as imagens novas.
+permissions:
+  contents: write
+
+concurrency:
+  group: instagram-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Única dependência: Pillow, para recortar e comprimir as imagens.
+      # Sem ela o script ainda roda, só que as fotos ficam em tamanho cheio.
+      - name: Instalar Pillow
+        run: pip install --quiet pillow
+
+      - name: Buscar posts e baixar imagens
+        env:
+          # Só o token é Secret. ID e handle são públicos — vão em Variables.
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ vars.INSTAGRAM_USER_ID || '17841471776917861' }}
+          INSTAGRAM_HANDLE: ${{ vars.INSTAGRAM_HANDLE || 'elosnegociosimobiliarios' }}
+        run: python execution/sync_instagram.py --limit 6
+
+      - name: Commitar se algo mudou
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/data/instagram.json assets/img/instagram
+          if git diff --staged --quiet; then
+            echo "Nada mudou no feed hoje."
+          else
+            git commit -m "chore: atualiza feed do Instagram"
+            git push
+          fi
