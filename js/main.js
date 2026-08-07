@@ -93,7 +93,8 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
   // Dropdown: no mobile o primeiro toque abre o submenu em vez de navegar.
   $$('.has-dropdown > a').forEach(link => {
     link.addEventListener('click', (e) => {
-      if (window.innerWidth <= 1024) {
+      // Mesmo breakpoint do menu mobile no style.css — mudou lá, muda aqui.
+      if (window.innerWidth <= 1150) {
         e.preventDefault();
         link.closest('.has-dropdown').classList.toggle('is-open');
       }

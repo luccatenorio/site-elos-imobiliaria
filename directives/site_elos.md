@@ -247,6 +247,68 @@ cliente (`https://i.ibb.co/7JgDg1Bj/predio-02.jpg`) como fundo da seção
     pública no Google é uma coisa; virar peça publicitária no site é outra.
     Confirmar com a Elos que existe o ok dessas pessoas antes de publicar.
 
+## Ajustes pedidos pelo cliente por WhatsApp (2026-08-06)
+
+- **Endereço de BH** trocado para **Rua Pedra Bonita, 703 - Prado, Belo
+  Horizonte - MG** (era Av. Sebastião de Brito, Dona Clara). ⚠️ **Confirmar:**
+  o cliente escreveu "esse endereço" no singular. Assumi que substitui o de
+  BH, porque Prado é bairro de BH — o endereço de **Contagem foi mantido**. Se
+  a intenção era virar endereço único, remover o de Contagem.
+- **Telefone único: (31) 99249-7076.** Substituiu os dois do rodapé
+  ((31) 9.8499-6144 e (31) 9.8786-7076) e o do menu mobile
+  ((31) 9.7547-2244). Todos os `wa.me` apontavam para `5531975472244` e
+  passaram para **`5531992497076`** — 3 links.
+- **Item "WhatsApp" no menu**, com ícone e em verde da marca (`--wa-green`),
+  abrindo conversa direta em nova aba.
+- **Nova seção "Trabalhe Conosco"** (`#trabalhe`), antes do CTA final, com
+  item no menu do topo e no rodapé. Três diferenciais + CTA para WhatsApp com
+  mensagem pré-preenchida sobre vagas. Foto é **placeholder** — trocar por uma
+  foto real da equipe. **Não usar foto de cliente/depoimento ali**: são
+  pessoas reais que não consentiram em virar imagem de recrutamento.
+- **Menu subiu para 6 itens** e passou a disputar espaço com o logo e o CTA.
+  Corrigido com `white-space:nowrap` nos links, gap de 32px→24px e o
+  breakpoint do menu mobile de **1024px → 1150px**. Esse valor está
+  duplicado em `style.css` e em `main.js` (toque no dropdown) — mudou num,
+  muda no outro.
+
+### Página Trabalhe Conosco (2026-08-06)
+O cliente pediu que virasse **rota própria**, não seção da home. A seção que
+eu tinha criado em `#trabalhe` foi **removida da rolagem principal**.
+
+- **`trabalhe-conosco.html`** — página completa, com header/footer próprios e
+  o mesmo `style.css`. Links do menu apontam para ela (topo e rodapé).
+- **`js/trabalhe.js`** — script próprio, **não usa o `main.js`**: aquele carrega
+  hero, carrosséis e a integração Supabase, que não existem nesta página.
+  Duplica só o essencial (menu mobile, header no scroll, reveal, voltar ao topo).
+- **Formulário de candidatura** com: nome, e-mail, WhatsApp (com máscara),
+  idade, cidade, CRECI, experiência, disponibilidade, veículo, texto livre e
+  link de perfil. Obrigatórios validados: nome (2 palavras), e-mail, telefone
+  (10+ dígitos), idade (16–90), cidade, texto (20+ caracteres).
+- **Envio sem backend**: monta uma mensagem formatada e abre o `wa.me` do RH
+  já preenchido. Tem link de resgate na tela de sucesso porque bloqueador de
+  pop-up pode barrar o `window.open`.
+  **Próximo passo natural**: gravar em uma tabela `candidates` no Supabase em
+  vez de (ou além de) mandar por WhatsApp — hoje candidato e comprador não se
+  misturam porque são canais diferentes, mas nada fica registrado.
+- Número do RH fica em `WHATSAPP_RH`, no topo do `trabalhe.js`.
+- Testado por CDP: envio vazio barra com 6 erros, e-mail inválido barra,
+  preenchido gera a URL com todos os campos e a máscara aplicada.
+
+### Pendente deste lote
+- **"E aparecer para o cliente fazer aquele cadastro fraga"** — não implementado,
+  pedido ambíguo. Perguntar ao cliente se ele quer um pop-up/modal de captura
+  de lead ou só mais destaque para o formulário que já existe.
+- Foto real da equipe (a seção da home saiu, mas se voltar a ter foto, não
+  usar rosto de cliente/depoimento).
+
+### ⚠️ Nunca usar PowerShell para editar HTML/CSS/JS deste projeto
+`Get-Content -Raw | Set-Content -Encoding utf8` no PowerShell 5.1 **corrompe a
+acentuação**: lê o arquivo UTF-8 como ANSI e regrava com dupla codificação
+("Imobiliária" vira "ImobiliÃ¡ria"). Aconteceu de verdade em 2026-08-06 no
+`trabalhe-conosco.html` e o arquivo teve que ser reescrito inteiro.
+Usar as ferramentas de edição do agente ou Node (`fs.readFileSync(f,'utf8')`).
+Conferência rápida: `node -e "..."` procurando por `/Ã[-¿]/`.
+
 ## Redesign completo (2026-08-04)
 
 Reformulação visual da home mantendo **a mesma paleta, a mesma ordem de seções

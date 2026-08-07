@@ -294,11 +294,12 @@ body.nav-open .site-header,
 .site-header.is-scrolled .logo img{height:140px;transform:scale(1)}
 
 .main-nav{margin-left:auto}
-.main-nav > ul{display:flex;gap:var(--sp-7);align-items:center}
+.main-nav > ul{display:flex;gap:var(--sp-6);align-items:center}
 .nav-link{
   position:relative;
   font-weight:600;font-size:.92rem;color:var(--navy-900);
   display:flex;align-items:center;gap:5px;padding:10px 0;
+  white-space:nowrap;   /* "Trabalhe Conosco" quebrava em duas linhas */
   transition:color var(--dur-1) var(--ease-out-quart);
 }
 .nav-link::after{
@@ -330,6 +331,11 @@ body.nav-open .site-header,
 }
 .dropdown li a:hover{background:var(--teal-050);color:var(--teal-600);padding-left:20px}
 
+/* Item de WhatsApp no menu: verde da marca, para se separar dos demais. */
+.nav-link-wa{color:var(--wa-green)}
+.nav-link-wa::after{background:var(--wa-green)}
+.nav-link-wa:hover{color:var(--wa-green)}
+
 .header-cta{flex-shrink:0}
 .mobile-nav-foot{display:none}
 
@@ -357,7 +363,10 @@ body.nav-open .site-header,
 }
 .nav-scrim.is-visible{opacity:1}
 
-@media (max-width:1024px){
+/* 1150px e não 1024: com "Trabalhe Conosco" e "WhatsApp" o menu tem 6 itens
+   e passa a disputar espaço com o logo e o CTA antes disso.
+   ATENÇÃO: o mesmo valor está no main.js (abertura do dropdown no toque). */
+@media (max-width:1150px){
   .header-cta{display:none}
   .mobile-toggle{display:flex}
   .main-nav{
@@ -1250,6 +1259,150 @@ body.modal-open{overflow:hidden}
 .google-card-head strong{font-size:var(--fs-sm);display:block}
 .google-card p{font-size:var(--fs-sm);color:var(--gray-600);margin:0}
 @media (max-width:900px){.google-grid{grid-template-columns:1fr}}
+
+/* ===== Trabalhe Conosco ===== */
+.section-careers{padding:var(--section-y) 0;background:var(--bg-ice);overflow:hidden}
+.careers-grid{
+  display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(36px,5vw,72px);align-items:center;
+}
+.careers-text h2{font-size:var(--fs-h2)}
+.careers-text > p{color:var(--gray-600);font-size:var(--fs-lead);max-width:52ch}
+
+.careers-list{margin:var(--sp-7) 0 0;display:grid;gap:var(--sp-5)}
+.careers-list li{display:flex;align-items:flex-start;gap:var(--sp-4)}
+.careers-icon{
+  display:grid;place-items:center;flex-shrink:0;
+  width:42px;height:42px;border-radius:var(--r-md);
+  background:var(--teal-050);border:1px solid var(--teal-100);color:var(--teal-600);
+  transition:transform var(--dur-2) var(--ease-spring),
+             background-color var(--dur-2) ease,color var(--dur-2) ease;
+}
+.careers-list li:hover .careers-icon{
+  transform:translateY(-3px);background:var(--navy-800);color:var(--white);
+}
+.careers-list strong{display:block;font-family:var(--font-head);font-size:.98rem;color:var(--navy-950)}
+.careers-list span{display:block;font-size:var(--fs-sm);color:var(--gray-600);line-height:1.6}
+.careers-actions{display:flex;gap:var(--sp-3);margin-top:var(--sp-8);flex-wrap:wrap}
+
+.careers-media{position:relative}
+.careers-media img{
+  width:100%;height:clamp(340px,42vw,520px);object-fit:cover;
+  border-radius:var(--r-lg);box-shadow:var(--shadow-lg);
+}
+.careers-badge{
+  position:absolute;left:-14px;bottom:-18px;z-index:2;max-width:250px;
+  background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r-md);
+  padding:var(--sp-4) var(--sp-5);box-shadow:var(--shadow-lg);
+}
+.careers-badge strong{display:block;font-family:var(--font-head);font-size:.95rem;color:var(--navy-900)}
+.careers-badge span{font-size:var(--fs-xs);color:var(--gray-600);line-height:1.55}
+
+@media (max-width:900px){
+  .careers-grid{grid-template-columns:1fr}
+  .careers-media{order:-1}
+  .careers-badge{left:16px;bottom:-16px}
+}
+
+/* =========================================================================
+   Página Trabalhe Conosco (trabalhe-conosco.html)
+   ========================================================================= */
+.careers-hero{
+  position:relative;overflow:hidden;
+  background:var(--grad-navy);
+  padding:clamp(90px,10vw,150px) 0 clamp(70px,8vw,110px);
+}
+.careers-hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(70% 110% at 80% 0%,rgba(185,151,91,.18),transparent 62%);
+}
+.careers-hero-inner{position:relative;z-index:1;max-width:720px;text-align:center;margin:0 auto}
+.careers-hero h1{
+  color:var(--white);font-size:var(--fs-h1);margin:var(--sp-5) 0 var(--sp-4);
+}
+.careers-hero p{color:var(--gray-300);font-size:var(--fs-lead);margin-bottom:var(--sp-8)}
+
+/* Selo "estamos contratando": ponto que pulsa devagar, sem gritar. */
+.hiring-badge{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:8px 18px;border-radius:var(--r-pill);
+  background:rgba(63,157,91,.14);border:1px solid rgba(63,157,91,.4);
+  color:var(--white);font-size:var(--fs-xs);font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+}
+.hiring-badge i{
+  width:8px;height:8px;border-radius:50%;background:var(--green-500);flex-shrink:0;
+  animation:hiringPulse 2.4s var(--ease-in-out) infinite;
+}
+@keyframes hiringPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(63,157,91,.6)}
+  60%{box-shadow:0 0 0 8px rgba(63,157,91,0)}
+}
+
+.section-careers-perks{padding:var(--section-y) 0;background:var(--bg-ice)}
+.perks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-6)}
+.perk-card{
+  background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r-lg);
+  padding:var(--sp-8) var(--sp-7);box-shadow:var(--shadow-sm);
+  transition:transform var(--dur-3) var(--ease-out-expo),
+             box-shadow var(--dur-3) var(--ease-out-expo),
+             border-color var(--dur-2) ease;
+}
+.perk-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg);border-color:var(--teal-300)}
+.perk-card h3{font-size:1.1rem;color:var(--navy-950);margin:var(--sp-4) 0 10px}
+.perk-card p{color:var(--gray-600);font-size:var(--fs-sm);line-height:1.65;margin:0}
+.perk-card .careers-icon{width:48px;height:48px}
+@media (max-width:900px){.perks-grid{grid-template-columns:1fr}}
+
+.section-apply{padding:var(--section-y) 0}
+.apply-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(36px,5vw,68px);align-items:flex-start}
+.apply-intro h2{font-size:var(--fs-h2)}
+.apply-intro > p{color:var(--gray-600)}
+.apply-notes{margin:var(--sp-7) 0 0;display:grid;gap:var(--sp-3)}
+.apply-notes li{
+  display:flex;align-items:flex-start;gap:var(--sp-3);
+  font-size:var(--fs-sm);color:var(--navy-900);line-height:1.6;
+}
+.apply-notes .icon{color:var(--teal-600);margin-top:3px;flex-shrink:0}
+.apply-contact{margin-top:var(--sp-8)}
+.apply-contact p{font-size:var(--fs-sm);color:var(--gray-600);margin-bottom:var(--sp-3)}
+
+.apply-card{
+  background:var(--white);border:1px solid var(--gray-100);border-radius:var(--r-lg);
+  padding:clamp(24px,3vw,38px);box-shadow:var(--shadow-lg);
+}
+.apply-fields{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5);margin-bottom:var(--sp-7)}
+.field-full{grid-column:1 / -1}
+.apply-card .field label{color:var(--navy-800)}
+.apply-card .field input,
+.apply-card .field select,
+.apply-card .field textarea{
+  border:1px solid var(--gray-300);background:var(--bg-ice);color:var(--navy-950);
+}
+.apply-card .field input:hover,
+.apply-card .field select:hover,
+.apply-card .field textarea:hover{background:var(--white)}
+.apply-card .field input:focus,
+.apply-card .field select:focus,
+.apply-card .field textarea:focus{background:var(--white);border-color:var(--teal-500)}
+.apply-card .field input::placeholder,
+.apply-card .field textarea::placeholder{color:var(--gray-600);opacity:.7}
+.apply-card .select-caret{color:var(--navy-800)}
+.apply-card .field.has-error input,
+.apply-card .field.has-error select,
+.apply-card .field.has-error textarea{border-color:var(--gold-700);background:var(--white)}
+.apply-card .field.has-error input,
+.apply-card .field.has-error textarea{animation:shake .34s var(--ease-out-quart)}
+.apply-hint{
+  font-size:var(--fs-xs);color:var(--gray-600);text-align:center;
+  margin:var(--sp-4) 0 0;
+}
+
+@media (max-width:900px){
+  .apply-grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .apply-fields{grid-template-columns:1fr}
+}
 
 /* ===== CTA final ===== */
 .section-cta{padding:0 var(--sp-6) var(--section-y)}
