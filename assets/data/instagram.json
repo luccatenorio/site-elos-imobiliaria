@@ -1,8 +1,24 @@
 {
   "handle": "elosnegociosimobiliarios",
   "profileUrl": "https://www.instagram.com/elosnegociosimobiliarios/",
-  "updatedAt": "2026-08-06T01:10:14+00:00",
+  "updatedAt": "2026-08-08T15:16:25+00:00",
   "posts": [
+    {
+      "id": "18410906242087490",
+      "image": "assets/img/instagram/18410906242087490.jpg",
+      "permalink": "https://www.instagram.com/p/Dbv8zZUkXeU/",
+      "caption": "Dia de treinamento dos empreendimentos",
+      "type": "CAROUSEL_ALBUM",
+      "timestamp": "2026-08-07T18:37:57+0000"
+    },
+    {
+      "id": "18067592381720601",
+      "image": "assets/img/instagram/18067592381720601.jpg",
+      "permalink": "https://www.instagram.com/reel/DbtwMZSvRnd/",
+      "caption": "Fazer a declaração com antecedência evita erros, foge da malha fina e ainda ajuda a receber a restituição mais rápido. Você já resolveu a…",
+      "type": "VIDEO",
+      "timestamp": "2026-08-06T22:09:45+0000"
+    },
     {
       "id": "18119424445930654",
       "image": "assets/img/instagram/18119424445930654.jpg",
@@ -34,22 +50,6 @@
       "caption": "Quem se capacita hoje, colhe grandes conquistas amanhã! 🔑✨",
       "type": "CAROUSEL_ALBUM",
       "timestamp": "2026-08-03T13:50:02+0000"
-    },
-    {
-      "id": "18602815639055948",
-      "image": "assets/img/instagram/18602815639055948.jpg",
-      "permalink": "https://www.instagram.com/reel/DblFVsROFh6/",
-      "caption": "Primeira etapa da imersão e treinamento, reforçando nosso compromisso contínuo com a formação e o aprimoramento do nosso time de corretores.",
-      "type": "VIDEO",
-      "timestamp": "2026-08-03T13:23:21+0000"
-    },
-    {
-      "id": "18191256367382244",
-      "image": "assets/img/instagram/18191256367382244.jpg",
-      "permalink": "https://www.instagram.com/reel/Dba9-4guLEj/",
-      "caption": "Autônomo consegue comprar um apartamento?",
-      "type": "VIDEO",
-      "timestamp": "2026-07-30T15:04:49+0000"
     }
   ]
 }

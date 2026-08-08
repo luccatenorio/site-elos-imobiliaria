@@ -956,6 +956,7 @@ $$('.fav-btn').forEach(btn => {
   const modalParking = $('#pModalParking span');
   const modalDesc = $('#pModalDesc');
   const modalWaBtn = $('#pModalWaBtn');
+  const modalTableBtn = $('#pModalTableBtn');
   const modalPdfBtn = $('#pModalPdfBtn');
   const modalMainImg = $('#pModalMainImg');
   const modalImgCount = $('#pModalImgCount');
@@ -995,6 +996,15 @@ $$('.fav-btn').forEach(btn => {
     if (modalWaBtn) {
       const msg = `Olá! Vi o imóvel "${item.name}" no site da Elos Imobiliária e gostaria de mais informações.`;
       modalWaBtn.href = `https://wa.me/5531975472244?text=${encodeURIComponent(msg)}`;
+    }
+
+    if (modalTableBtn) {
+      if (item.tableUrl) {
+        modalTableBtn.href = item.tableUrl;
+        modalTableBtn.style.display = 'inline-flex';
+      } else {
+        modalTableBtn.style.display = 'none';
+      }
     }
 
     if (modalPdfBtn) {

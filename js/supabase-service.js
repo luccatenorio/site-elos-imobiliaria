@@ -21,9 +21,18 @@ function formatCurrency(val) {
 /**
  * Mapeia o status do imóvel para a aba correspondente no site
  * @param {string} status Status no banco ou tipo do imóvel
+ * @param {string} name Nome do imóvel
+ * @param {string} constructionStatus Campo construction_status no banco (ex: 'em_construcao', 'lancamento', 'pronto')
  * @returns {string} 'construcao' | 'lancamento' | 'prontos'
  */
-function mapStatusToTab(status, name = '') {
+function mapStatusToTab(status, name = '', constructionStatus = '') {
+  if (constructionStatus && typeof constructionStatus === 'string') {
+    const cs = constructionStatus.toLowerCase().trim();
+    if (cs.includes('pronto') || cs.includes('ready')) return 'prontos';
+    if (cs.includes('lança') || cs.includes('lanca') || cs.includes('launch')) return 'lancamento';
+    if (cs.includes('construc') || cs.includes('construç') || cs.includes('obra')) return 'construcao';
+  }
+
   if (!status) status = '';
   const s = status.toLowerCase();
   const n = name.toLowerCase();
@@ -85,12 +94,22 @@ async function fetchSupabaseEnterprises() {
         }
       }
 
+      // Filtra fotos que sejam tabelas de preço / capturas de tela
+      photos = photos.filter(p => {
+        if (!p || typeof p !== 'string') return false;
+        const lower = p.toLowerCase();
+        if (lower.includes('captura-de-tela') || lower.includes('tabela-de-precos') || lower.includes('2026-03-25-01-41')) {
+          return false;
+        }
+        return true;
+      });
+
       // Imagem padrão caso não haja fotos no CRM
       if (!photos || photos.length === 0) {
         photos = ['assets/img/logo-elos-header.png'];
       }
 
-      const statusTab = mapStatusToTab(item.status, item.name);
+      const statusTab = mapStatusToTab(item.status, item.name, item.construction_status);
       const statusTag = getStatusTag(statusTab);
 
       return {
@@ -108,6 +127,8 @@ async function fetchSupabaseEnterprises() {
         photos: photos,
         mainPhoto: photos[0],
         pdfUrl: item.pdf_url || null,
+        tableUrl: item.table_url || null,
+        constructionStatus: item.construction_status || null,
         acceptsExchange: !!item.accepts_exchange,
         exchangeDetails: item.exchange_details || '',
         statusTab: statusTab,
