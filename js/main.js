@@ -1459,3 +1459,60 @@ $$('.fav-btn').forEach(btn => {
       /* Ainda não há feed sincronizado — segue com as fotos do HTML. */
     });
 })();
+
+
+/* ------------------------------------------- Quem Somos: Animação Baralho --- */
+(() => {
+  const stack = document.getElementById('aboutCardStack');
+  if (!stack) return;
+
+  const cards = Array.from(stack.querySelectorAll('.about-card'));
+  if (cards.length < 2) return;
+
+  let activeIndex = 0;
+  let isAnimating = false;
+  let timer = null;
+
+  function shuffle() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const topCard = cards[activeIndex];
+    const nextIndex = (activeIndex + 1) % cards.length;
+    const nextCard = cards[nextIndex];
+
+    topCard.classList.add('is-shuffling');
+
+    setTimeout(() => {
+      topCard.classList.remove('is-top', 'is-shuffling');
+      topCard.classList.add('is-back');
+
+      nextCard.classList.remove('is-back');
+      nextCard.classList.add('is-top');
+
+      activeIndex = nextIndex;
+      isAnimating = false;
+    }, 700);
+  }
+
+  stack.addEventListener('click', () => {
+    shuffle();
+    restartTimer();
+  });
+
+  function startTimer() {
+    if (REDUCED_MOTION) return;
+    timer = setInterval(shuffle, 4500);
+  }
+
+  function restartTimer() {
+    if (timer) clearInterval(timer);
+    startTimer();
+  }
+
+  startTimer();
+
+  stack.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); });
+  stack.addEventListener('mouseleave', () => { restartTimer(); });
+})();
+
