@@ -124,6 +124,7 @@ async function fetchSupabaseEnterprises() {
         bathrooms: parseInt(item.bathrooms, 10) || 0,
         parkingSpots: parseInt(item.parking_spots, 10) || 0,
         region: item.region || 'Belo Horizonte e Região - MG',
+        constructorName: item.constructor_name || null,
         photos: photos,
         mainPhoto: photos[0],
         pdfUrl: item.pdf_url || null,

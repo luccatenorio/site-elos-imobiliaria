@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=34">
+<link rel="stylesheet" href="css/style.css?v=35">
 </head>
 <body>
 
@@ -57,7 +57,8 @@
   <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-verified" viewBox="0 0 24 24"><path fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 1 15.52 3.5 19.78 4.22 20.5 8.48 23 12 20.5 15.52 19.78 19.78 15.52 20.5 12 23 8.48 20.5 4.22 19.78 3.5 15.52 1 12 3.5 8.48 4.22 4.22 8.48 3.5Z"/><path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m8 12.3 2.7 2.7 5.3-5.6"/></symbol>
   <symbol id="i-google" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.92h5.4c-.23 1.4-1.63 4.1-5.4 4.1-3.25 0-5.9-2.69-5.9-6s2.65-6 5.9-6c1.85 0 3.09.79 3.8 1.47l2.59-2.5C16.99 3.4 14.85 2.5 12.18 2.5 6.98 2.5 2.77 6.7 2.77 11.9s4.21 9.4 9.41 9.4c5.43 0 9.03-3.82 9.03-9.2 0-.62-.07-1.09-.16-1.6z"/></symbol>
-  <symbol id="i-mouse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="18" rx="4"/><line x1="12" y1="7" x2="12" y2="10"/></g></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="6" x2="9.01" y2="6"/><line x1="15" y1="6" x2="15.01" y2="6"/><line x1="9" y1="10" x2="9.01" y2="10"/><line x1="15" y1="10" x2="15.01" y2="10"/><line x1="9" y1="14" x2="9.01" y2="14"/><line x1="15" y1="14" x2="15.01" y2="14"/><path d="M10 22v-4h4v4"/></g></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></g></symbol>
 </svg>
 
 
@@ -1050,7 +1051,7 @@
 <div class="property-modal" id="propertyModal" role="dialog" aria-modal="true" aria-labelledby="pModalTitle" hidden>
   <div class="property-modal-backdrop" data-pmodal-close></div>
   <div class="property-modal-card">
-    <button class="property-modal-close" data-pmodal-close aria-label="Fechar detalhes">
+    <button class="property-modal-close" data-pmodal-close aria-label="Fechar detalhes do imóvel">
       <svg class="icon icon-sm" aria-hidden="true"><use href="#i-close"/></svg>
     </button>
     <div class="property-modal-grid">
@@ -1071,14 +1072,22 @@
 
       <!-- Lado Direito: Informações e Ações -->
       <div class="property-modal-info">
-        <span class="tag" id="pModalTag"><i class="tag-dot"></i>Lançamento</span>
+        <div class="pmodal-meta-row">
+          <span class="tag" id="pModalTag"><i class="tag-dot"></i>Lançamento</span>
+          <span class="pmodal-constructor-badge" id="pModalConstructor" style="display:none">
+            <svg class="icon icon-xs" aria-hidden="true"><use href="#i-building"/></svg>
+            <span></span>
+          </span>
+          <span class="badge-outline" id="pModalExchangeBadge" style="display:none">Aceita permuta</span>
+        </div>
+
         <h2 id="pModalTitle">Nome do Imóvel</h2>
         <p class="property-location" id="pModalLocation">
           <svg class="icon icon-xs" aria-hidden="true"><use href="#i-pin"/></svg> <span>Localização</span>
         </p>
 
-        <div class="pmodal-price-box">
-          <span class="pmodal-price-label">Valor do imóvel</span>
+        <div class="pmodal-price-box" id="pModalPriceBox">
+          <span class="pmodal-price-label">Valor a partir de</span>
           <strong class="pmodal-price" id="pModalPrice">R$ 0,00</strong>
         </div>
 
@@ -1089,25 +1098,27 @@
           <li id="pModalParking"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-car"/></svg> <span>-</span></li>
         </ul>
 
+        <div class="pmodal-exchange-info" id="pModalExchangeDetails" style="display:none">
+          <strong>Permuta:</strong> <span></span>
+        </div>
+
         <div class="pmodal-desc-wrap">
           <h3>Descrição do Imóvel</h3>
           <p id="pModalDesc">Sem descrição cadastrada.</p>
         </div>
 
         <div class="pmodal-actions">
-          <a href="#" id="pModalWaBtn" target="_blank" rel="noopener" class="btn btn-primary btn-block">
-            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-whatsapp"/></svg> Tenho interesse no WhatsApp
-          </a>
-          <a href="#" id="pModalTableBtn" target="_blank" rel="noopener" class="btn btn-outline btn-block" style="display:none">
-            Ver Tabela de Preços
+          <a href="#" id="pModalWaBtn" target="_blank" rel="noopener" class="btn btn-whatsapp-pmodal btn-block">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-whatsapp"/></svg> Tenho interesse — Falar no WhatsApp
           </a>
           <a href="#" id="pModalPdfBtn" target="_blank" rel="noopener" class="btn btn-outline btn-block" style="display:none">
-            Baixar Apresentação (PDF)
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-file-text"/></svg> Ver / Baixar Apresentação (PDF)
           </a>
         </div>
       </div>
     </div>
   </div>
+</div>
 <!-- Modal Popup de Busca (Mobile Otimizado) -->
 <div class="search-modal" id="searchModal" aria-hidden="true" role="dialog" aria-labelledby="searchModalTitle">
   <div class="search-modal-backdrop" id="searchModalBackdrop"></div>
@@ -1210,7 +1221,7 @@
   </div>
 </div>
 
-<script src="js/supabase-service.js?v=1"></script>
-<script src="js/main.js?v=19"></script>
+<script src="js/supabase-service.js?v=2"></script>
+<script src="js/main.js?v=20"></script>
 </body>
 </html>

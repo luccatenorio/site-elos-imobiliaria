@@ -949,14 +949,16 @@ $$('.fav-btn').forEach(btn => {
   const modalTitle = $('#pModalTitle');
   const modalLocation = $('#pModalLocation span');
   const modalTag = $('#pModalTag');
+  const modalConstructor = $('#pModalConstructor');
+  const modalExchangeBadge = $('#pModalExchangeBadge');
   const modalPrice = $('#pModalPrice');
   const modalBed = $('#pModalBed span');
   const modalBath = $('#pModalBath span');
   const modalArea = $('#pModalArea span');
   const modalParking = $('#pModalParking span');
+  const modalExchangeDetails = $('#pModalExchangeDetails');
   const modalDesc = $('#pModalDesc');
   const modalWaBtn = $('#pModalWaBtn');
-  const modalTableBtn = $('#pModalTableBtn');
   const modalPdfBtn = $('#pModalPdfBtn');
   const modalMainImg = $('#pModalMainImg');
   const modalImgCount = $('#pModalImgCount');
@@ -977,6 +979,19 @@ $$('.fav-btn').forEach(btn => {
       modalTag.innerHTML = `<i class="tag-dot"></i>${item.statusTag.text}`;
     }
 
+    if (modalConstructor) {
+      if (item.constructorName) {
+        modalConstructor.querySelector('span').textContent = item.constructorName;
+        modalConstructor.style.display = 'inline-flex';
+      } else {
+        modalConstructor.style.display = 'none';
+      }
+    }
+
+    if (modalExchangeBadge) {
+      modalExchangeBadge.style.display = item.acceptsExchange ? 'inline-block' : 'none';
+    }
+
     if (modalPrice) modalPrice.textContent = item.priceFormatted;
 
     const bedText = item.bedrooms > 0 ? `${item.bedrooms} quarto${item.bedrooms > 1 ? 's' : ''}` : '2 a 3 quartos';
@@ -989,22 +1004,22 @@ $$('.fav-btn').forEach(btn => {
     if (modalArea) modalArea.textContent = areaText;
     if (modalParking) modalParking.textContent = parkText;
 
+    if (modalExchangeDetails) {
+      if (item.acceptsExchange && item.exchangeDetails) {
+        modalExchangeDetails.querySelector('span').textContent = item.exchangeDetails;
+        modalExchangeDetails.style.display = 'block';
+      } else {
+        modalExchangeDetails.style.display = 'none';
+      }
+    }
+
     if (modalDesc) {
       modalDesc.textContent = item.description || 'Entre em contato com nossos corretores para saber mais detalhes sobre este empreendimento exclusivo da Elos Imobiliária.';
     }
 
     if (modalWaBtn) {
-      const msg = `Olá! Vi o imóvel "${item.name}" no site da Elos Imobiliária e gostaria de mais informações.`;
-      modalWaBtn.href = `https://wa.me/5531975472244?text=${encodeURIComponent(msg)}`;
-    }
-
-    if (modalTableBtn) {
-      if (item.tableUrl) {
-        modalTableBtn.href = item.tableUrl;
-        modalTableBtn.style.display = 'inline-flex';
-      } else {
-        modalTableBtn.style.display = 'none';
-      }
+      const msg = `Olá! Vi o imóvel "${item.name}" no site da Elos Imobiliária, tenho interesse e gostaria de receber mais informações.`;
+      modalWaBtn.href = `https://wa.me/5531992497076?text=${encodeURIComponent(msg)}`;
     }
 
     if (modalPdfBtn) {
@@ -1043,18 +1058,28 @@ $$('.fav-btn').forEach(btn => {
       modalImgCount.textContent = `${currentPhotoIndex + 1} / ${currentModalPhotos.length}`;
     }
 
+    if (modalPrevBtn && modalNextBtn) {
+      modalPrevBtn.style.display = currentModalPhotos.length > 1 ? 'flex' : 'none';
+      modalNextBtn.style.display = currentModalPhotos.length > 1 ? 'flex' : 'none';
+    }
+
     if (modalThumbs) {
       modalThumbs.innerHTML = '';
-      currentModalPhotos.forEach((url, idx) => {
-        const thumb = document.createElement('div');
-        thumb.className = `pmodal-thumb ${idx === currentPhotoIndex ? 'is-active' : ''}`;
-        thumb.innerHTML = `<img src="${url}" alt="Miniatura ${idx + 1}">`;
-        thumb.addEventListener('click', () => {
-          currentPhotoIndex = idx;
-          updateGallery();
+      if (currentModalPhotos.length > 1) {
+        modalThumbs.style.display = 'flex';
+        currentModalPhotos.forEach((url, idx) => {
+          const thumb = document.createElement('div');
+          thumb.className = `pmodal-thumb ${idx === currentPhotoIndex ? 'is-active' : ''}`;
+          thumb.innerHTML = `<img src="${url}" alt="Miniatura ${idx + 1}">`;
+          thumb.addEventListener('click', () => {
+            currentPhotoIndex = idx;
+            updateGallery();
+          });
+          modalThumbs.appendChild(thumb);
         });
-        modalThumbs.appendChild(thumb);
-      });
+      } else {
+        modalThumbs.style.display = 'none';
+      }
     }
   }
 
@@ -1079,8 +1104,16 @@ $$('.fav-btn').forEach(btn => {
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal && !modal.hidden) {
-      closeModal();
+    if (modal && !modal.hidden && modal.classList.contains('is-open')) {
+      if (e.key === 'Escape') {
+        closeModal();
+      } else if (e.key === 'ArrowLeft' && currentModalPhotos.length > 1) {
+        currentPhotoIndex = (currentPhotoIndex - 1 + currentModalPhotos.length) % currentModalPhotos.length;
+        updateGallery();
+      } else if (e.key === 'ArrowRight' && currentModalPhotos.length > 1) {
+        currentPhotoIndex = (currentPhotoIndex + 1) % currentModalPhotos.length;
+        updateGallery();
+      }
     }
   });
 
