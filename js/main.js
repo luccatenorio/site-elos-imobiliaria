@@ -491,7 +491,7 @@ window.initHeroSlider();
         const show = btn.dataset.tab === 'todos' || card.dataset.tab === btn.dataset.tab;
         card.style.display = show ? '' : 'none';
         if (show) {
-          card.style.transitionDelay = REDUCED_MOTION ? '' : `${visible * 70}ms`;
+          card.style.transitionDelay = REDUCED_MOTION ? '' : `${visible * 10}ms`;
           visible += 1;
         } else {
           card.style.transitionDelay = '';
@@ -501,11 +501,11 @@ window.initHeroSlider();
       requestAnimationFrame(() => {
         cards.forEach(card => card.classList.remove('is-filtering'));
       });
-      setTimeout(() => cards.forEach(card => { card.style.transitionDelay = ''; }), 900);
+      setTimeout(() => cards.forEach(card => { card.style.transitionDelay = ''; }), 300);
 
       track.scrollTo({ left: 0, behavior: 'auto' });
       track.dispatchEvent(new Event('scroll'));
-    }, REDUCED_MOTION ? 0 : 200);
+    }, REDUCED_MOTION ? 0 : 20);
 
     if (scroll) {
       document.getElementById('empreendimentos')
@@ -971,6 +971,14 @@ $$('.fav-btn').forEach(btn => {
     currentModalPhotos = item.photos && item.photos.length > 0 ? item.photos : ['assets/img/logo-elos-header.png'];
     currentPhotoIndex = 0;
 
+    // Pré-carrega todas as imagens do modal em memória para transição instantânea
+    currentModalPhotos.forEach(src => {
+      if (src && typeof src === 'string' && src.startsWith('http')) {
+        const img = new Image();
+        img.src = src;
+      }
+    });
+
     if (modalTitle) modalTitle.textContent = item.name;
     if (modalLocation) modalLocation.textContent = item.region || 'Belo Horizonte e Região - MG';
     
@@ -1048,11 +1056,8 @@ $$('.fav-btn').forEach(btn => {
   function updateGallery() {
     if (!modalMainImg || currentModalPhotos.length === 0) return;
 
-    modalMainImg.style.opacity = '0.3';
-    setTimeout(() => {
-      modalMainImg.src = currentModalPhotos[currentPhotoIndex];
-      modalMainImg.style.opacity = '1';
-    }, 100);
+    modalMainImg.src = currentModalPhotos[currentPhotoIndex];
+    modalMainImg.style.opacity = '1';
 
     if (modalImgCount) {
       modalImgCount.textContent = `${currentPhotoIndex + 1} / ${currentModalPhotos.length}`;
@@ -1143,6 +1148,14 @@ $$('.fav-btn').forEach(btn => {
       return;
     }
 
+    // Pré-carrega fotos principais dos imóveis exibidos para carregamento instantâneo
+    list.forEach(item => {
+      if (item.mainPhoto && typeof item.mainPhoto === 'string' && item.mainPhoto.startsWith('http')) {
+        const img = new Image();
+        img.src = item.mainPhoto;
+      }
+    });
+
     track.innerHTML = list.map(item => {
       const bedText = item.bedrooms > 0 ? `${item.bedrooms} quarto${item.bedrooms > 1 ? 's' : ''}` : '2 a 3 quartos';
       const bathText = item.bathrooms > 0 ? `${item.bathrooms} banho${item.bathrooms > 1 ? 's' : ''}` : '1 a 2 banhos';
@@ -1156,7 +1169,7 @@ $$('.fav-btn').forEach(btn => {
             <button type="button" class="fav-btn" aria-label="Salvar ${item.name} nos favoritos" aria-pressed="false">
               <svg class="icon icon-sm" aria-hidden="true"><use href="#i-heart"/></svg>
             </button>
-            <img src="${item.mainPhoto}" alt="${item.name}" loading="lazy" decoding="async">
+            <img src="${item.mainPhoto}" alt="${item.name}" loading="eager" decoding="async">
             <span class="media-scrim" aria-hidden="true"></span>
           </div>
           <div class="property-card-body">
@@ -1275,8 +1288,8 @@ $$('.fav-btn').forEach(btn => {
               </div>
             </div>
             <div class="hero-thumbs" data-parallax="18">
-              <img src="${thumb1}" alt="${item.name}" loading="lazy" decoding="async">
-              <img src="${thumb2}" alt="${item.name}" loading="lazy" decoding="async">
+              <img src="${thumb1}" alt="${item.name}" loading="eager" decoding="async">
+              <img src="${thumb2}" alt="${item.name}" loading="eager" decoding="async">
             </div>
           </div>
         </article>
@@ -1424,6 +1437,20 @@ $$('.fav-btn').forEach(btn => {
         renderProperties(allEnterprises);
         updateHeroSlides(allEnterprises);
         bindSearchFilters();
+
+        // Pré-carrega assincronamente as fotos de todos os empreendimentos em segundo plano
+        setTimeout(() => {
+          allEnterprises.forEach(item => {
+            if (item.photos && Array.isArray(item.photos)) {
+              item.photos.forEach(p => {
+                if (p && typeof p === 'string' && p.startsWith('http')) {
+                  const img = new Image();
+                  img.src = p;
+                }
+              });
+            }
+          });
+        }, 500);
       }
     }
   }
