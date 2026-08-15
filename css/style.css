@@ -2380,18 +2380,24 @@ body.modal-open{overflow:hidden}
 /* =========================================================================
    PÁGINA DEDICADA DO IMÓVEL (FULL PAGE VIEW & DEEP LINK)
    ========================================================================= */
+.property-page-view,
+.property-page-view * {
+  box-sizing: border-box !important;
+}
+
 .property-page-view {
   position: fixed;
   inset: 0;
   z-index: 450;
   background: var(--bg-ice);
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
-  width: 100%;
+  width: 100vw;
   max-width: 100vw;
-  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-3) var(--ease-out-expo);
@@ -2410,28 +2416,36 @@ body.modal-open{overflow:hidden}
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--gray-100);
-  padding: 14px 0;
+  padding: 12px 0;
   box-shadow: var(--shadow-xs);
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden;
 }
 .ppage-header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sp-4);
+  gap: 10px;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 .ppage-back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--white);
   border: 1px solid var(--gray-300);
   color: var(--navy-900);
   font-weight: 600;
   font-size: var(--fs-sm);
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: var(--r-pill);
   box-shadow: var(--shadow-xs);
   transition: all var(--dur-2) ease;
+  flex-shrink: 0;
 }
 .ppage-back-btn:hover {
   background: var(--navy-900);
@@ -2442,17 +2456,18 @@ body.modal-open{overflow:hidden}
 .ppage-share-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--navy-800);
   color: var(--white);
   border: 1px solid var(--navy-800);
-  padding: 10px 22px;
+  padding: 8px 18px;
   border-radius: var(--r-pill);
   font-weight: 600;
   font-size: var(--fs-sm);
   box-shadow: var(--shadow-xs);
   transition: all var(--dur-2) ease;
   cursor: pointer;
+  flex-shrink: 0;
 }
 .ppage-share-btn:hover {
   background: var(--teal-600);
@@ -2462,29 +2477,44 @@ body.modal-open{overflow:hidden}
 
 /* Corpo da página do imóvel */
 .ppage-body {
-  padding: var(--sp-8) 0 var(--sp-12);
+  padding: var(--sp-6) 0 var(--sp-12);
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+.ppage-container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 .ppage-grid {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: var(--sp-9);
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Coluna Esquerda: Galeria */
 .ppage-gallery-col {
   position: sticky;
-  top: 90px;
+  top: 80px;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
+  gap: 16px;
+  width: 100%;
+  max-width: 100%;
 }
 .ppage-main-img-wrap {
   position: relative;
   border-radius: var(--r-xl);
   overflow: hidden;
   background: #071325;
-  height: 480px;
+  height: 460px;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2492,6 +2522,8 @@ body.modal-open{overflow:hidden}
   border: 1px solid var(--gray-100);
 }
 .ppage-main-img-wrap img {
+  max-width: 100%;
+  max-height: 100%;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -2502,8 +2534,8 @@ body.modal-open{overflow:hidden}
   top: 50%;
   transform: translateY(-50%);
   z-index: 25;
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: rgba(10, 25, 48, 0.88);
   color: #ffffff;
@@ -2522,33 +2554,35 @@ body.modal-open{overflow:hidden}
   border-color: #ffffff;
   transform: translateY(-50%) scale(1.1);
 }
-.ppage-prev { left: 12px; }
-.ppage-next { right: 12px; }
+.ppage-prev { left: 10px; }
+.ppage-next { right: 10px; }
 
 .ppage-count {
   position: absolute;
-  bottom: 14px;
-  right: 14px;
+  bottom: 12px;
+  right: 12px;
   z-index: 25;
   background: rgba(10, 25, 48, 0.88);
   color: #ffffff;
   font-size: var(--fs-xs);
   font-weight: 700;
-  padding: 5px 14px;
+  padding: 4px 12px;
   border-radius: var(--r-pill);
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(6px);
 }
 .ppage-thumbs {
   display: flex;
-  gap: var(--sp-3);
+  gap: 10px;
   overflow-x: auto;
   padding: 4px 2px;
   scrollbar-width: thin;
+  width: 100%;
+  max-width: 100%;
 }
 .ppage-thumb {
-  width: 96px;
-  height: 68px;
+  width: 90px;
+  height: 64px;
   flex-shrink: 0;
   border-radius: var(--r-md);
   overflow: hidden;
@@ -2576,25 +2610,28 @@ body.modal-open{overflow:hidden}
 .ppage-info-col {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-6);
+  gap: 20px;
   background: var(--white);
-  padding: var(--sp-8);
+  padding: 32px;
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--gray-100);
+  width: 100%;
+  max-width: 100%;
 }
 .ppage-meta-tags {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
+  gap: 8px;
   flex-wrap: wrap;
 }
 .ppage-title {
-  font-size: clamp(1.8rem, 2.3vw, 2.7rem);
+  font-size: clamp(1.6rem, 2vw, 2.4rem);
   font-weight: 800;
   color: var(--navy-950);
   margin: 0;
-  line-height: 1.15;
+  line-height: 1.2;
+  word-break: break-word;
 }
 .ppage-location {
   display: flex;
@@ -2603,17 +2640,19 @@ body.modal-open{overflow:hidden}
   color: var(--teal-600);
   font-size: var(--fs-lead);
   font-weight: 600;
-  margin: -8px 0 0;
+  margin: -4px 0 0;
 }
 
 /* Destaque de Preço Grande */
 .ppage-price-card {
   background: var(--grad-navy);
   color: var(--white);
-  padding: var(--sp-5) var(--sp-7);
+  padding: 20px 24px;
   border-radius: var(--r-lg);
   border-left: 5px solid var(--gold-500);
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-width: 100%;
 }
 .ppage-price-label {
   display: block;
@@ -2624,43 +2663,48 @@ body.modal-open{overflow:hidden}
   margin-bottom: 4px;
 }
 .ppage-price {
-  font-size: clamp(1.8rem, 2.4vw, 2.6rem);
+  font-size: clamp(1.6rem, 2.2vw, 2.4rem);
   font-weight: 800;
   color: var(--gold-300);
   font-family: var(--font-head);
+  word-break: break-word;
 }
 
-/* Grade de Especificações Grandes */
+/* Grade de Especificações */
 .ppage-specs-card {
   background: var(--bg-ice-light);
   border-radius: var(--r-lg);
-  padding: var(--sp-6);
+  padding: 20px;
   border: 1px solid var(--gray-100);
+  width: 100%;
+  max-width: 100%;
 }
 .ppage-specs-card h3 {
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--teal-600);
-  margin-bottom: var(--sp-4);
+  margin-bottom: 14px;
   font-weight: 700;
 }
 .ppage-specs-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--sp-5);
+  gap: 16px;
   padding: 0;
   margin: 0;
   list-style: none;
+  width: 100%;
 }
 .ppage-specs-grid li {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 .ppage-specs-grid .icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   color: var(--teal-600);
   flex-shrink: 0;
 }
@@ -2674,8 +2718,9 @@ body.modal-open{overflow:hidden}
 .ppage-specs-grid span {
   display: block;
   font-weight: 700;
-  font-size: 1.08rem;
+  font-size: 1rem;
   color: var(--navy-900);
+  word-break: break-word;
 }
 
 .ppage-exchange-box {
@@ -2688,57 +2733,67 @@ body.modal-open{overflow:hidden}
   align-items: flex-start;
   gap: 10px;
   font-size: var(--fs-sm);
+  width: 100%;
 }
 
 /* Descrição completa sem scroll interno */
+.ppage-desc-section {
+  width: 100%;
+  max-width: 100%;
+}
 .ppage-desc-section h2 {
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   color: var(--navy-950);
-  margin-bottom: var(--sp-3);
+  margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--teal-050);
 }
 .ppage-desc-content {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--navy-900);
-  line-height: 1.8;
+  line-height: 1.75;
   white-space: pre-line;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
-/* Seção de Imóveis Relacionados no Rodapé da Página do Imóvel */
+/* Seção de Imóveis Relacionados */
 .ppage-related-section {
-  margin-top: var(--sp-12);
-  padding-top: var(--sp-9);
+  margin-top: 40px;
+  padding-top: 32px;
   border-top: 1px solid var(--gray-300);
+  width: 100%;
+  max-width: 100%;
 }
 .ppage-related-head {
   text-align: center;
   max-width: 600px;
-  margin: 0 auto var(--sp-8);
+  margin: 0 auto 24px;
 }
 .ppage-related-head h2 {
-  font-size: clamp(1.5rem, 2vw, 2.1rem);
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
   color: var(--navy-950);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .ppage-related-head p {
   color: var(--gray-600);
-  font-size: var(--fs-lead);
+  font-size: var(--fs-sm);
   margin: 0;
 }
 .ppage-related-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--sp-6);
+  gap: 20px;
+  width: 100%;
 }
 
 /* =========================================================================
-   RESPONSIVIDADE MOBILE DA PÁGINA DO IMÓVEL (SEM ZOOM E COM ROLAGEM PERFEITA)
+   RESPONSIVIDADE MOBILE DA PÁGINA DO IMÓVEL (100% RESPONSIVO / ZERO CORTES)
    ========================================================================= */
 @media (max-width: 990px) {
   .ppage-grid {
     grid-template-columns: 1fr;
-    gap: var(--sp-6);
+    gap: 24px;
   }
   .ppage-gallery-col {
     position: static;
@@ -2748,37 +2803,39 @@ body.modal-open{overflow:hidden}
   }
   .ppage-related-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
 @media (max-width: 640px) {
   .ppage-header {
-    padding: 10px 0;
+    padding: 8px 0;
   }
   .ppage-header-inner {
-    padding: 0 var(--sp-4);
+    padding: 0 12px;
+    gap: 8px;
   }
   .ppage-back-btn {
-    padding: 8px 14px;
-    font-size: var(--fs-xs);
+    padding: 7px 12px;
+    font-size: 0.78rem;
   }
   .ppage-share-btn {
-    padding: 8px 14px;
-    font-size: var(--fs-xs);
+    padding: 7px 14px;
+    font-size: 0.78rem;
   }
   .ppage-body {
-    padding: var(--sp-4) 0 var(--sp-8);
+    padding: 16px 0 32px;
   }
   .ppage-container {
-    padding: 0 var(--sp-4);
+    padding: 0 12px;
   }
   .ppage-main-img-wrap {
-    height: min(320px, 65vh);
+    height: min(300px, 60vh);
     border-radius: var(--r-lg);
   }
   .ppage-nav {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
   }
   .ppage-prev { left: 6px; }
   .ppage-next { right: 6px; }
@@ -2789,56 +2846,62 @@ body.modal-open{overflow:hidden}
     padding: 3px 10px;
   }
   .ppage-thumb {
-    width: 76px;
-    height: 52px;
+    width: 72px;
+    height: 50px;
   }
   .ppage-info-col {
-    padding: var(--sp-5) var(--sp-4);
+    padding: 16px 14px;
     border-radius: var(--r-lg);
-    gap: var(--sp-4);
+    gap: 16px;
   }
   .ppage-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
   .ppage-location {
     font-size: var(--fs-sm);
   }
   .ppage-price-card {
-    padding: var(--sp-4);
+    padding: 14px 16px;
   }
   .ppage-price {
-    font-size: 1.65rem;
+    font-size: 1.55rem;
   }
   .ppage-specs-card {
-    padding: var(--sp-4);
+    padding: 14px 16px;
   }
   .ppage-specs-grid {
     grid-template-columns: 1fr 1fr;
-    gap: var(--sp-3);
+    gap: 12px;
   }
   .ppage-specs-grid li {
     gap: 8px;
   }
   .ppage-specs-grid .icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
   .ppage-specs-grid span {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
   .ppage-desc-content {
-    font-size: 0.98rem;
+    font-size: 0.95rem;
     line-height: 1.65;
   }
   .btn-whatsapp-pmodal {
-    font-size: 0.95rem;
-    padding: 14px 16px;
+    font-size: 0.92rem;
+    padding: 13px 14px;
   }
 }
 
 @media (max-width: 380px) {
   .ppage-specs-grid {
     grid-template-columns: 1fr;
+  }
+  .ppage-header-inner {
+    padding: 0 8px;
+  }
+  .ppage-container {
+    padding: 0 8px;
   }
 }
 
