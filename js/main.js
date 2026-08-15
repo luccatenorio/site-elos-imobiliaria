@@ -1168,6 +1168,34 @@ $$('.fav-btn').forEach(btn => {
     }
   }
 
+  // Touch Swipe para trocar fotos deslizando no celular
+  const mainImgWrap = $('.ppage-main-img-wrap');
+  if (mainImgWrap) {
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    mainImgWrap.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+      }
+    }, { passive: true });
+
+    mainImgWrap.addEventListener('touchend', (e) => {
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        touchEndX = e.changedTouches[0].clientX;
+        const diffX = touchEndX - touchStartX;
+        if (Math.abs(diffX) > 35 && currentModalPhotos.length > 1) {
+          if (diffX < 0) {
+            currentPhotoIndex = (currentPhotoIndex + 1) % currentModalPhotos.length;
+          } else {
+            currentPhotoIndex = (currentPhotoIndex - 1 + currentModalPhotos.length) % currentModalPhotos.length;
+          }
+          updateGallery();
+        }
+      }
+    }, { passive: true });
+  }
+
   if (modalShareBtn) {
     modalShareBtn.addEventListener('click', () => {
       if (!activePropertyId) return;
