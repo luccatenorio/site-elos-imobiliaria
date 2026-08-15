@@ -466,7 +466,6 @@ window.initHeroSlider();
   if (!tabsWrap || !track) return;
 
   const buttons = $$('.tab-btn', tabsWrap);
-  const cards = $$('.property-card', track);
   if (!buttons.length) return;
 
   tabsWrap.style.setProperty('--tab-count', buttons.length);
@@ -482,13 +481,17 @@ window.initHeroSlider();
     });
     tabsWrap.style.setProperty('--tab-index', idx);
 
+    // Consulta os cards DINAMICAMENTE para incluir imóveis do Supabase
+    const currentCards = $$('.property-card', track);
+
     // Fade out -> troca de visibilidade -> fade in em cascata.
-    cards.forEach(card => card.classList.add('is-filtering'));
+    currentCards.forEach(card => card.classList.add('is-filtering'));
 
     setTimeout(() => {
       let visible = 0;
-      cards.forEach(card => {
-        const show = btn.dataset.tab === 'todos' || card.dataset.tab === btn.dataset.tab;
+      currentCards.forEach(card => {
+        const cardTab = card.dataset.tab;
+        const show = btn.dataset.tab === 'todos' || cardTab === btn.dataset.tab;
         card.style.display = show ? '' : 'none';
         if (show) {
           card.style.transitionDelay = REDUCED_MOTION ? '' : `${visible * 10}ms`;
@@ -499,19 +502,23 @@ window.initHeroSlider();
       });
 
       requestAnimationFrame(() => {
-        cards.forEach(card => card.classList.remove('is-filtering'));
+        currentCards.forEach(card => card.classList.remove('is-filtering'));
       });
-      setTimeout(() => cards.forEach(card => { card.style.transitionDelay = ''; }), 300);
+      setTimeout(() => currentCards.forEach(card => { card.style.transitionDelay = ''; }), 300);
 
       track.scrollTo({ left: 0, behavior: 'auto' });
       track.dispatchEvent(new Event('scroll'));
     }, REDUCED_MOTION ? 0 : 20);
 
     if (scroll) {
-      document.getElementById('empreendimentos')
-        .scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'start' });
+      const sectionEmp = document.getElementById('empreendimentos');
+      if (sectionEmp) {
+        sectionEmp.scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'start' });
+      }
     }
   }
+
+  window.activateEnterpriseTab = activate;
 
   buttons.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.tab)));
 
@@ -1363,6 +1370,12 @@ $$('.fav-btn').forEach(btn => {
         btn.setAttribute('aria-pressed', String(!on));
       });
     });
+
+    // Re-aplica a filtragem da aba ativa nos novos cards
+    const activeTabBtn = $('#empTabs .tab-btn.is-active');
+    if (activeTabBtn && typeof window.activateEnterpriseTab === 'function') {
+      window.activateEnterpriseTab(activeTabBtn.dataset.tab);
+    }
   }
 
   /**
