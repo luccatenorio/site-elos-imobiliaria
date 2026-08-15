@@ -2444,7 +2444,8 @@ body.modal-open{overflow:hidden}
   padding: 8px 16px;
   border-radius: var(--r-pill);
   box-shadow: var(--shadow-xs);
-  transition: all var(--dur-2) ease;
+  transition: background-color var(--dur-2) ease, color var(--dur-2) ease,
+              border-color var(--dur-2) ease, transform var(--dur-2) ease;
   flex-shrink: 0;
 }
 .ppage-back-btn:hover {
@@ -2465,7 +2466,8 @@ body.modal-open{overflow:hidden}
   font-weight: 600;
   font-size: var(--fs-sm);
   box-shadow: var(--shadow-xs);
-  transition: all var(--dur-2) ease;
+  transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease,
+              transform var(--dur-2) ease;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -2511,7 +2513,7 @@ body.modal-open{overflow:hidden}
   position: relative;
   border-radius: var(--r-xl);
   overflow: hidden;
-  background: #071325;
+  background: var(--navy-950);
   height: 460px;
   width: 100%;
   max-width: 100%;
@@ -2547,7 +2549,8 @@ body.modal-open{overflow:hidden}
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   cursor: pointer;
-  transition: all var(--dur-2) ease;
+  transition: background-color var(--dur-2) ease, border-color var(--dur-2) ease,
+              transform var(--dur-2) ease;
 }
 .ppage-nav:hover {
   background: var(--teal-600);
@@ -2589,7 +2592,8 @@ body.modal-open{overflow:hidden}
   cursor: pointer;
   opacity: 0.55;
   border: 2px solid transparent;
-  transition: all var(--dur-2) ease;
+  transition: opacity var(--dur-2) ease, border-color var(--dur-2) ease,
+              transform var(--dur-2) ease;
 }
 .ppage-thumb img {
   width: 100%;
@@ -2902,6 +2906,89 @@ body.modal-open{overflow:hidden}
   }
   .ppage-container {
     padding: 0 8px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   CORTE HORIZONTAL NO CELULAR — causa raiz
+   -------------------------------------------------------------------------
+   Sintoma: na tela de detalhe do imóvel o conteúdo ficava cortado à direita,
+   sem como rolar nem ver (o `overflow-x:hidden` escondia o vazamento em vez
+   de resolver).
+
+   Duas causas somadas:
+   1. Item de grid tem `min-width:auto` por padrão — a coluna não consegue
+      encolher abaixo da largura mínima do conteúdo.
+   2. `.btn` usa `white-space:nowrap`, e o rótulo do botão de apresentação
+      ("Ver / Baixar Apresentação Comercial (PDF)") não cabe numa linha em
+      celular. Ele esticava a coluna para 382px numa tela de 360px.
+
+   Só aparecia em imóvel COM PDF — por isso passou despercebido.
+   ------------------------------------------------------------------------- */
+
+/* 1. Deixa as colunas encolherem junto com a tela. */
+.ppage-gallery-col,
+.ppage-info-col,
+.ppage-grid > * {
+  min-width: 0;
+}
+
+/* 2. Botões de rótulo longo podem quebrar em duas linhas em vez de esticar
+      o container. Vale para o do PDF e o do WhatsApp. */
+#pModalPdfBtn,
+#pModalPdfBtn span,
+.btn-whatsapp-pmodal,
+.btn-whatsapp-pmodal span {
+  white-space: normal;
+}
+#pModalPdfBtn,
+.btn-whatsapp-pmodal {
+  height: auto;
+  text-align: center;
+  line-height: 1.35;
+}
+
+/* 3. Texto vindo do CRM (nome de empreendimento, link colado na descrição)
+      não pode esticar a coluna com uma palavra sem espaço. */
+.ppage-title,
+.ppage-location,
+.ppage-desc-content,
+.ppage-price,
+.ppage-exchange-box,
+.pmodal-constructor-badge {
+  overflow-wrap: anywhere;
+}
+
+/* 4. Imagem e miniaturas nunca ultrapassam a coluna. */
+.ppage-main-img-wrap,
+.ppage-main-img-wrap img,
+.ppage-thumbs {
+  max-width: 100%;
+}
+
+/* 5. Barra de topo: em tela estreita o rótulo "Copiar link" some e fica só
+      o ícone. O botão continua acessível pelo aria-label. */
+@media (max-width: 400px) {
+  .ppage-header-inner {
+    gap: 8px;
+  }
+  .ppage-back-btn,
+  .ppage-share-btn {
+    min-width: 0;
+  }
+  .ppage-share-btn span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .ppage-share-btn {
+    padding: 7px 11px;
   }
 }
 
