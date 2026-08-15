@@ -62,7 +62,7 @@ function getStatusTag(statusTab) {
  * Busca todos os empreendimentos da Elos Imobiliária diretamente no Supabase CRM
  */
 async function fetchSupabaseEnterprises() {
-  const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/enterprises?organization_id=eq.${SUPABASE_CONFIG.orgId}&order=created_at.desc`;
+  const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/enterprises?organization_id=eq.${SUPABASE_CONFIG.orgId}&or=(exibir_no_site.is.null,exibir_no_site.eq.true)&order=created_at.desc`;
 
   try {
     const response = await fetch(endpoint, {
@@ -81,8 +81,11 @@ async function fetchSupabaseEnterprises() {
 
     const data = await response.json();
     
+    // Filtra para garantir que apenas imóveis com exibir_no_site !== false sejam exibidos
+    const filteredData = data.filter(item => item.exibir_no_site !== false);
+    
     // Normaliza os dados para consumo fácil no site
-    return data.map(item => {
+    return filteredData.map(item => {
       let photos = [];
       if (Array.isArray(item.photos)) {
         photos = item.photos.filter(p => typeof p === 'string' && p.trim().length > 0);
