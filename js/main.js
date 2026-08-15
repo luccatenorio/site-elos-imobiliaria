@@ -943,6 +943,7 @@ $$('.fav-btn').forEach(btn => {
   let allEnterprises = [];
   let currentModalPhotos = [];
   let currentPhotoIndex = 0;
+  let activePropertyId = null;
 
   // Seletores do Modal de Detalhes
   const modal = $('#propertyModal');
@@ -960,16 +961,24 @@ $$('.fav-btn').forEach(btn => {
   const modalDesc = $('#pModalDesc');
   const modalWaBtn = $('#pModalWaBtn');
   const modalPdfBtn = $('#pModalPdfBtn');
+  const modalShareBtn = $('#pModalShareBtn');
   const modalMainImg = $('#pModalMainImg');
   const modalImgCount = $('#pModalImgCount');
   const modalThumbs = $('#pModalThumbs');
   const modalPrevBtn = $('#pModalPrevImg');
   const modalNextBtn = $('#pModalNextImg');
 
-  function openModal(item) {
+  function openModal(item, updateUrl = true) {
     if (!modal) return;
+    activePropertyId = item.id;
     currentModalPhotos = item.photos && item.photos.length > 0 ? item.photos : ['assets/img/logo-elos-header.png'];
     currentPhotoIndex = 0;
+
+    // Atualiza a URL no navegador para permitir compartilhamento direto da rota do imóvel
+    if (updateUrl && window.history && window.history.pushState) {
+      const newUrl = `${window.location.origin}${window.location.pathname}?imovel=${item.id}`;
+      window.history.pushState({ imovelId: item.id }, '', newUrl);
+    }
 
     // Pré-carrega todas as imagens do modal em memória para transição instantânea
     currentModalPhotos.forEach(src => {
@@ -1026,7 +1035,8 @@ $$('.fav-btn').forEach(btn => {
     }
 
     if (modalWaBtn) {
-      const msg = `Olá! Vi o imóvel "${item.name}" no site da Elos Imobiliária, tenho interesse e gostaria de receber mais informações.`;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?imovel=${item.id}`;
+      const msg = `Olá! Vi o imóvel "${item.name}" no site da Elos Imobiliária (${shareUrl}), tenho interesse e gostaria de receber mais informações.`;
       modalWaBtn.href = `https://wa.me/5531992497076?text=${encodeURIComponent(msg)}`;
     }
 
@@ -1046,10 +1056,21 @@ $$('.fav-btn').forEach(btn => {
     document.body.classList.add('modal-open');
   }
 
-  function closeModal() {
+  function closeModal(updateUrl = true) {
     if (!modal) return;
     modal.classList.remove('is-open');
     document.body.classList.remove('modal-open');
+    activePropertyId = null;
+
+    // Limpa a URL removendo o parâmetro do imóvel quando fecha o modal
+    if (updateUrl && window.history && window.history.pushState) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('imovel') || urlParams.has('id')) {
+        const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+        window.history.pushState({}, '', cleanUrl);
+      }
+    }
+
     setTimeout(() => { modal.hidden = true; }, 300);
   }
 
@@ -1088,6 +1109,28 @@ $$('.fav-btn').forEach(btn => {
     }
   }
 
+  if (modalShareBtn) {
+    modalShareBtn.addEventListener('click', () => {
+      if (!activePropertyId) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?imovel=${activePropertyId}`;
+      const btnSpan = modalShareBtn.querySelector('span');
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          if (btnSpan) {
+            const originalText = btnSpan.textContent;
+            btnSpan.textContent = 'Link Copiado com Sucesso! 📋';
+            setTimeout(() => { btnSpan.textContent = originalText; }, 2500);
+          }
+        }).catch(() => {
+          prompt('Copie o link do imóvel para enviar ao cliente:', shareUrl);
+        });
+      } else {
+        prompt('Copie o link do imóvel para enviar ao cliente:', shareUrl);
+      }
+    });
+  }
+
   if (modalPrevBtn) {
     modalPrevBtn.addEventListener('click', () => {
       currentPhotoIndex = (currentPhotoIndex - 1 + currentModalPhotos.length) % currentModalPhotos.length;
@@ -1118,6 +1161,44 @@ $$('.fav-btn').forEach(btn => {
       } else if (e.key === 'ArrowRight' && currentModalPhotos.length > 1) {
         currentPhotoIndex = (currentPhotoIndex + 1) % currentModalPhotos.length;
         updateGallery();
+      }
+    }
+  });
+
+  /**
+   * Verifica se há um ID de imóvel na URL e abre o modal diretamente (Deep Linking)
+   */
+  function checkUrlDeepLink() {
+    if (!allEnterprises || allEnterprises.length === 0) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedId = urlParams.get('imovel') || urlParams.get('id') || (window.location.hash ? window.location.hash.replace('#imovel-', '') : null);
+
+    if (sharedId) {
+      const foundItem = allEnterprises.find(p => p.id === sharedId || p.id.toLowerCase() === sharedId.toLowerCase());
+      if (foundItem) {
+        setTimeout(() => {
+          openModal(foundItem, false);
+          const sectionEmp = $('#empreendimentos');
+          if (sectionEmp) {
+            sectionEmp.scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+          }
+        }, 200);
+      }
+    }
+  }
+
+  // Listener para navegação via botões voltar/avançar do navegador
+  window.addEventListener('popstate', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentId = urlParams.get('imovel') || urlParams.get('id');
+    if (currentId && allEnterprises.length > 0) {
+      const foundItem = allEnterprises.find(p => p.id === currentId);
+      if (foundItem) {
+        openModal(foundItem, false);
+      }
+    } else {
+      if (modal && !modal.hidden && modal.classList.contains('is-open')) {
+        closeModal(false);
       }
     }
   });
