@@ -1128,7 +1128,8 @@ $$('.fav-btn').forEach(btn => {
   function updateGallery() {
     if (!modalMainImg || currentModalPhotos.length === 0) return;
 
-    modalMainImg.src = currentModalPhotos[currentPhotoIndex];
+    const targetUrl = currentModalPhotos[currentPhotoIndex];
+    modalMainImg.src = targetUrl;
     modalMainImg.style.opacity = '1';
 
     if (modalImgCount) {
@@ -1146,8 +1147,8 @@ $$('.fav-btn').forEach(btn => {
         modalThumbs.style.display = 'flex';
         currentModalPhotos.forEach((url, idx) => {
           const thumb = document.createElement('div');
-          thumb.className = `pmodal-thumb ${idx === currentPhotoIndex ? 'is-active' : ''}`;
-          thumb.innerHTML = `<img src="${url}" alt="Miniatura ${idx + 1}">`;
+          thumb.className = `ppage-thumb ${idx === currentPhotoIndex ? 'is-active' : ''}`;
+          thumb.innerHTML = `<img src="${url}" alt="Miniatura ${idx + 1}" loading="eager" decoding="async">`;
           thumb.addEventListener('click', () => {
             currentPhotoIndex = idx;
             updateGallery();
@@ -1326,6 +1327,23 @@ $$('.fav-btn').forEach(btn => {
 
     // Eventos de clique no card inteiro (imagem, título, corpo ou botão "Saiba mais")
     $$('.property-card', track).forEach(card => {
+      const preloadTargetPhotos = () => {
+        const id = card.dataset.id;
+        const item = allEnterprises.find(p => p.id === id);
+        if (item && item.photos) {
+          item.photos.forEach(src => {
+            if (src && typeof src === 'string' && src.startsWith('http')) {
+              const img = new Image();
+              img.src = src;
+              if (img.decode) img.decode().catch(() => {});
+            }
+          });
+        }
+      };
+
+      card.addEventListener('mouseenter', preloadTargetPhotos, { once: true });
+      card.addEventListener('touchstart', preloadTargetPhotos, { once: true, passive: true });
+
       card.addEventListener('click', (e) => {
         // Se o clique for no botão de favoritar, ignora a abertura do modal
         if (e.target.closest('.fav-btn')) return;
@@ -1558,6 +1576,28 @@ $$('.fav-btn').forEach(btn => {
     }
   }
 
+  function aggressivePreloadImages(enterprises) {
+    if (!enterprises || !Array.isArray(enterprises)) return;
+
+    enterprises.forEach((item, itemIdx) => {
+      if (item.photos && Array.isArray(item.photos)) {
+        item.photos.forEach((src, photoIdx) => {
+          if (src && typeof src === 'string' && src.startsWith('http')) {
+            const img = new Image();
+            img.decoding = 'async';
+            if (itemIdx < 8 && photoIdx === 0) {
+              img.fetchPriority = 'high';
+            }
+            img.src = src;
+            if (img.decode) {
+              img.decode().catch(() => {});
+            }
+          }
+        });
+      }
+    });
+  }
+
   /**
    * Inicializa o carregamento dos imóveis
    */
@@ -1566,23 +1606,14 @@ $$('.fav-btn').forEach(btn => {
       const data = await window.SupabaseService.fetchSupabaseEnterprises();
       if (data && data.length > 0) {
         allEnterprises = data;
+        
+        // Pré-carrega e pré-decodifica imediatamente TODAS as fotos em GPU/Cache
+        aggressivePreloadImages(allEnterprises);
+
         renderProperties(allEnterprises);
         updateHeroSlides(allEnterprises);
         bindSearchFilters();
-
-        // Pré-carrega assincronamente as fotos de todos os empreendimentos em segundo plano
-        setTimeout(() => {
-          allEnterprises.forEach(item => {
-            if (item.photos && Array.isArray(item.photos)) {
-              item.photos.forEach(p => {
-                if (p && typeof p === 'string' && p.startsWith('http')) {
-                  const img = new Image();
-                  img.src = p;
-                }
-              });
-            }
-          });
-        }, 500);
+        checkUrlDeepLink();
       }
     }
   }
