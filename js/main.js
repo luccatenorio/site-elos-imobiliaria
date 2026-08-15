@@ -1041,19 +1041,70 @@ $$('.fav-btn').forEach(btn => {
     }
 
     if (modalPdfBtn) {
+      const pdfWrap = $('#pModalPdfWrap');
       if (item.pdfUrl) {
         modalPdfBtn.href = item.pdfUrl;
-        modalPdfBtn.style.display = 'inline-flex';
+        if (pdfWrap) pdfWrap.style.display = 'block';
       } else {
-        modalPdfBtn.style.display = 'none';
+        if (pdfWrap) pdfWrap.style.display = 'none';
       }
     }
+
+    renderRelatedEnterprises(item.id);
 
     updateGallery();
 
     modal.hidden = false;
+    modal.scrollTop = 0;
     requestAnimationFrame(() => modal.classList.add('is-open'));
     document.body.classList.add('modal-open');
+  }
+
+  function renderRelatedEnterprises(currentId) {
+    const modalRelatedGrid = $('#pModalRelatedGrid');
+    if (!modalRelatedGrid) return;
+    modalRelatedGrid.innerHTML = '';
+    
+    const relatedList = allEnterprises
+      .filter(p => p.id !== currentId)
+      .slice(0, 3);
+
+    const section = $('#pModalRelatedSection');
+    if (relatedList.length === 0) {
+      if (section) section.style.display = 'none';
+      return;
+    } else {
+      if (section) section.style.display = 'block';
+    }
+
+    relatedList.forEach(relItem => {
+      const card = document.createElement('article');
+      card.className = 'property-card';
+      const cover = (relItem.photos && relItem.photos[0]) || 'assets/img/logo-elos-header.png';
+
+      card.innerHTML = `
+        <div class="property-card-media">
+          <span class="tag ${relItem.statusTag.class}"><i class="tag-dot"></i>${relItem.statusTag.text}</span>
+          <img src="${cover}" alt="${relItem.name}" loading="lazy">
+          <div class="media-scrim"></div>
+        </div>
+        <div class="property-card-body">
+          <h3>${relItem.name}</h3>
+          <p class="property-location">
+            <svg class="icon icon-xs" aria-hidden="true"><use href="#i-pin"/></svg> <span>${relItem.region || 'Belo Horizonte - MG'}</span>
+          </p>
+          <div class="property-price-label">Valor a partir de</div>
+          <div class="property-price">${relItem.priceFormatted}</div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        openModal(relItem, true);
+        if (modal) modal.scrollTop = 0;
+      });
+
+      modalRelatedGrid.appendChild(card);
+    });
   }
 
   function closeModal(updateUrl = true) {

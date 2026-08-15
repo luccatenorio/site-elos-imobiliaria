@@ -2368,7 +2368,7 @@ body.modal-open{overflow:hidden}
   color: var(--white);
   box-shadow: 0 8px 24px -6px rgba(37, 211, 102, 0.5);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 .btn-whatsapp-pmodal:hover {
   background: var(--wa-green);
@@ -2377,24 +2377,361 @@ body.modal-open{overflow:hidden}
   transform: translateY(-2px);
 }
 
-@media (max-width: 860px) {
-  .property-modal {
-    padding: 0;
-    align-items: flex-end;
-  }
-  .property-modal-card {
-    max-height: 94vh;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  .property-modal-grid {
+/* =========================================================================
+   PÁGINA DEDICADA DO IMÓVEL (FULL PAGE VIEW & DEEP LINK)
+   ========================================================================= */
+.property-page-view {
+  position: fixed;
+  inset: 0;
+  z-index: 450;
+  background: var(--bg-ice);
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-3) var(--ease-out-expo);
+}
+.property-page-view.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Header de navegação da página do imóvel */
+.ppage-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(245, 246, 242, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--gray-100);
+  padding: 14px 0;
+  box-shadow: var(--shadow-xs);
+}
+.ppage-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+.ppage-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--gray-300);
+  color: var(--navy-900);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  padding: 10px 20px;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--dur-2) ease;
+}
+.ppage-back-btn:hover {
+  background: var(--navy-900);
+  color: var(--white);
+  border-color: var(--navy-900);
+  transform: translateX(-3px);
+}
+.ppage-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--navy-800);
+  color: var(--white);
+  border: 1px solid var(--navy-800);
+  padding: 10px 22px;
+  border-radius: var(--r-pill);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--dur-2) ease;
+  cursor: pointer;
+}
+.ppage-share-btn:hover {
+  background: var(--teal-600);
+  border-color: var(--teal-600);
+  transform: scale(1.03);
+}
+
+/* Corpo da página do imóvel */
+.ppage-body {
+  padding: var(--sp-8) 0 var(--sp-12);
+}
+.ppage-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: var(--sp-9);
+  align-items: start;
+}
+
+/* Coluna Esquerda: Galeria */
+.ppage-gallery-col {
+  position: sticky;
+  top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.ppage-main-img-wrap {
+  position: relative;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: #0a1930;
+  height: 480px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-100);
+}
+.ppage-main-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity var(--dur-2) ease;
+}
+.ppage-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(10, 25, 48, 0.7);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: all var(--dur-2) ease;
+}
+.ppage-nav:hover {
+  background: var(--teal-600);
+  transform: translateY(-50%) scale(1.1);
+}
+.ppage-prev { left: 14px; }
+.ppage-next { right: 14px; }
+
+.ppage-count {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 5;
+  background: rgba(10, 25, 48, 0.8);
+  color: var(--white);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: var(--r-pill);
+  backdrop-filter: blur(4px);
+}
+.ppage-thumbs {
+  display: flex;
+  gap: var(--sp-3);
+  overflow-x: auto;
+  padding: 4px 2px;
+  scrollbar-width: thin;
+}
+.ppage-thumb {
+  width: 96px;
+  height: 68px;
+  flex-shrink: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.55;
+  border: 2px solid transparent;
+  transition: all var(--dur-2) ease;
+}
+.ppage-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ppage-thumb:hover {
+  opacity: 0.9;
+}
+.ppage-thumb.is-active {
+  opacity: 1;
+  border-color: var(--gold-500);
+  transform: scale(1.04);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Coluna Direita: Informações & Descrição Completa */
+.ppage-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  background: var(--white);
+  padding: var(--sp-8);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-100);
+}
+.ppage-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.ppage-title {
+  font-size: clamp(1.8rem, 2.3vw, 2.7rem);
+  font-weight: 800;
+  color: var(--navy-950);
+  margin: 0;
+  line-height: 1.15;
+}
+.ppage-location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--teal-600);
+  font-size: var(--fs-lead);
+  font-weight: 600;
+  margin: -8px 0 0;
+}
+
+/* Destaque de Preço Grande */
+.ppage-price-card {
+  background: var(--grad-navy);
+  color: var(--white);
+  padding: var(--sp-5) var(--sp-7);
+  border-radius: var(--r-lg);
+  border-left: 5px solid var(--gold-500);
+  box-shadow: var(--shadow-sm);
+}
+.ppage-price-label {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--gray-300);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.ppage-price {
+  font-size: clamp(1.8rem, 2.4vw, 2.6rem);
+  font-weight: 800;
+  color: var(--gold-300);
+  font-family: var(--font-head);
+}
+
+/* Grade de Especificações Grandes */
+.ppage-specs-card {
+  background: var(--bg-ice-light);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+  border: 1px solid var(--gray-100);
+}
+.ppage-specs-card h3 {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--teal-600);
+  margin-bottom: var(--sp-4);
+  font-weight: 700;
+}
+.ppage-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.ppage-specs-grid li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ppage-specs-grid .icon {
+  width: 24px;
+  height: 24px;
+  color: var(--teal-600);
+  flex-shrink: 0;
+}
+.ppage-specs-grid small {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ppage-specs-grid span {
+  display: block;
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: var(--navy-900);
+}
+
+.ppage-exchange-box {
+  background: var(--teal-050);
+  border: 1px solid var(--teal-100);
+  color: var(--navy-900);
+  padding: 14px 18px;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: var(--fs-sm);
+}
+
+/* Descrição completa sem scroll interno */
+.ppage-desc-section h2 {
+  font-size: 1.35rem;
+  color: var(--navy-950);
+  margin-bottom: var(--sp-3);
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--teal-050);
+}
+.ppage-desc-content {
+  font-size: 1.05rem;
+  color: var(--navy-900);
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+/* Seção de Imóveis Relacionados no Rodapé da Página do Imóvel */
+.ppage-related-section {
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-9);
+  border-top: 1px solid var(--gray-300);
+}
+.ppage-related-head {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto var(--sp-8);
+}
+.ppage-related-head h2 {
+  font-size: clamp(1.5rem, 2vw, 2.1rem);
+  color: var(--navy-950);
+  margin-bottom: 8px;
+}
+.ppage-related-head p {
+  color: var(--gray-600);
+  font-size: var(--fs-lead);
+  margin: 0;
+}
+.ppage-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-6);
+}
+
+@media (max-width: 990px) {
+  .ppage-grid {
     grid-template-columns: 1fr;
+    gap: var(--sp-7);
   }
-  .pmodal-main-img-wrap {
-    height: 260px;
+  .ppage-gallery-col {
+    position: static;
   }
-  .property-modal-info {
-    padding: var(--sp-5) var(--sp-6);
+  .ppage-main-img-wrap {
+    height: 320px;
+  }
+  .ppage-related-grid {
+    grid-template-columns: 1fr;
   }
 }
 

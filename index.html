@@ -59,6 +59,7 @@
   <symbol id="i-google" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35 11.1h-9.17v2.92h5.4c-.23 1.4-1.63 4.1-5.4 4.1-3.25 0-5.9-2.69-5.9-6s2.65-6 5.9-6c1.85 0 3.09.79 3.8 1.47l2.59-2.5C16.99 3.4 14.85 2.5 12.18 2.5 6.98 2.5 2.77 6.7 2.77 11.9s4.21 9.4 9.41 9.4c5.43 0 9.03-3.82 9.03-9.2 0-.62-.07-1.09-.16-1.6z"/></symbol>
   <symbol id="i-building" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="6" x2="9.01" y2="6"/><line x1="15" y1="6" x2="15.01" y2="6"/><line x1="9" y1="10" x2="9.01" y2="10"/><line x1="15" y1="10" x2="15.01" y2="10"/><line x1="9" y1="14" x2="9.01" y2="14"/><line x1="15" y1="14" x2="15.01" y2="14"/><path d="M10 22v-4h4v4"/></g></symbol>
   <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></g></symbol>
+  <symbol id="i-share-arrow" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></g></symbol>
   <symbol id="i-file-text" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></g></symbol>
 </svg>
 
@@ -1049,78 +1050,150 @@
   <svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron-up"/></svg>
 </button>
 
-<!-- ================= MODAL DETALHES DO IMÓVEL ================= -->
-<div class="property-modal" id="propertyModal" role="dialog" aria-modal="true" aria-labelledby="pModalTitle" hidden>
-  <div class="property-modal-backdrop" data-pmodal-close></div>
-  <div class="property-modal-card">
-    <button class="property-modal-close" data-pmodal-close aria-label="Fechar detalhes do imóvel">
-      <svg class="icon icon-sm" aria-hidden="true"><use href="#i-close"/></svg>
-    </button>
-    <div class="property-modal-grid">
-      <!-- Lado Esquerdo: Galeria de Fotos -->
-      <div class="property-modal-gallery">
-        <div class="pmodal-main-img-wrap">
-          <img id="pModalMainImg" src="" alt="Foto do imóvel">
-          <button class="pmodal-nav pmodal-prev" id="pModalPrevImg" aria-label="Foto anterior">
-            <svg class="icon" aria-hidden="true"><use href="#i-chevron-left"/></svg>
-          </button>
-          <button class="pmodal-nav pmodal-next" id="pModalNextImg" aria-label="Próxima foto">
-            <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg>
-          </button>
-          <span class="pmodal-count" id="pModalImgCount">1 / 1</span>
+<!-- ================= PÁGINA DEDICADA DO IMÓVEL ================= -->
+<div class="property-page-view" id="propertyModal" role="dialog" aria-modal="true" aria-labelledby="pModalTitle" hidden>
+  <!-- Barra Superior de Navegação -->
+  <div class="ppage-header">
+    <div class="container ppage-header-inner">
+      <button type="button" class="ppage-back-btn" data-pmodal-close aria-label="Voltar para a lista de imóveis">
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+        <span>Voltar aos imóveis</span>
+      </button>
+
+      <div class="ppage-header-actions">
+        <button type="button" class="ppage-share-btn" id="pModalShareBtn" title="Copiar link do imóvel">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#i-share-arrow"/></svg>
+          <span>Copiar link</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Corpo Principal da Página do Imóvel -->
+  <div class="ppage-body">
+    <div class="container ppage-container">
+      
+      <div class="ppage-grid">
+        <!-- Coluna Esquerda: Galeria de Fotos & Apresentação -->
+        <div class="ppage-gallery-col">
+          <div class="ppage-main-img-wrap">
+            <img id="pModalMainImg" src="" alt="Foto do imóvel">
+            <button class="ppage-nav ppage-prev" id="pModalPrevImg" aria-label="Foto anterior">
+              <svg class="icon" aria-hidden="true"><use href="#i-chevron-left"/></svg>
+            </button>
+            <button class="ppage-nav ppage-next" id="pModalNextImg" aria-label="Próxima foto">
+              <svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg>
+            </button>
+            <span class="ppage-count" id="pModalImgCount">1 / 1</span>
+          </div>
+
+          <div class="ppage-thumbs" id="pModalThumbs"></div>
+
+          <div id="pModalPdfWrap" style="display:none; margin-top: 16px;">
+            <a href="#" id="pModalPdfBtn" target="_blank" rel="noopener" class="btn btn-outline btn-block">
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#i-file-text"/></svg>
+              <span>Ver / Baixar Apresentação Comercial (PDF)</span>
+            </a>
+          </div>
         </div>
-        <div class="pmodal-thumbs" id="pModalThumbs"></div>
+
+        <!-- Coluna Direita: Informações Detalhadas & Descrição Livre sem Scroll Cut -->
+        <div class="ppage-info-col">
+          <div class="ppage-meta-tags">
+            <span class="tag" id="pModalTag"><i class="tag-dot"></i>Lançamento</span>
+            <span class="pmodal-constructor-badge" id="pModalConstructor" style="display:none">
+              <svg class="icon icon-xs" aria-hidden="true"><use href="#i-building"/></svg>
+              <span></span>
+            </span>
+            <span class="badge-outline" id="pModalExchangeBadge" style="display:none">Aceita permuta</span>
+          </div>
+
+          <h1 class="ppage-title" id="pModalTitle">Nome do Imóvel</h1>
+
+          <p class="ppage-location" id="pModalLocation">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-pin"/></svg> <span>Belo Horizonte - MG</span>
+          </p>
+
+          <!-- Destaque de Preço -->
+          <div class="ppage-price-card" id="pModalPriceBox">
+            <span class="ppage-price-label">Valor a partir de</span>
+            <strong class="ppage-price" id="pModalPrice">R$ 0,00</strong>
+          </div>
+
+          <!-- Especificações Principais com Ícones Grandes e Leitura Clara -->
+          <div class="ppage-specs-card">
+            <h3>Ficha Técnica</h3>
+            <ul class="ppage-specs-grid">
+              <li id="pModalBed">
+                <svg class="icon" aria-hidden="true"><use href="#i-bed"/></svg>
+                <div>
+                  <small>Dormitórios</small>
+                  <span>-</span>
+                </div>
+              </li>
+              <li id="pModalBath">
+                <svg class="icon" aria-hidden="true"><use href="#i-bath"/></svg>
+                <div>
+                  <small>Banheiros</small>
+                  <span>-</span>
+                </div>
+              </li>
+              <li id="pModalArea">
+                <svg class="icon" aria-hidden="true"><use href="#i-expand"/></svg>
+                <div>
+                  <small>Área Útil</small>
+                  <span>-</span>
+                </div>
+              </li>
+              <li id="pModalParking">
+                <svg class="icon" aria-hidden="true"><use href="#i-car"/></svg>
+                <div>
+                  <small>Vagas de Garagem</small>
+                  <span>-</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Detalhes de Permuta -->
+          <div class="ppage-exchange-box" id="pModalExchangeDetails" style="display:none">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-check"/></svg>
+            <div>
+              <strong>Condições de Permuta:</strong>
+              <span></span>
+            </div>
+          </div>
+
+          <!-- Descrição Completa e Visível -->
+          <div class="ppage-desc-section">
+            <h2>Sobre o Imóvel</h2>
+            <div class="ppage-desc-content" id="pModalDesc">
+              Sem descrição cadastrada.
+            </div>
+          </div>
+
+          <!-- Chamada para Ação Direct / WhatsApp -->
+          <div class="ppage-cta-block">
+            <a href="#" id="pModalWaBtn" target="_blank" rel="noopener" class="btn btn-whatsapp-pmodal btn-lg btn-block">
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#i-whatsapp"/></svg>
+              <span>Tenho interesse — Falar no WhatsApp</span>
+            </a>
+          </div>
+
+        </div>
       </div>
 
-      <!-- Lado Direito: Informações e Ações -->
-      <div class="property-modal-info">
-        <div class="pmodal-meta-row">
-          <span class="tag" id="pModalTag"><i class="tag-dot"></i>Lançamento</span>
-          <span class="pmodal-constructor-badge" id="pModalConstructor" style="display:none">
-            <svg class="icon icon-xs" aria-hidden="true"><use href="#i-building"/></svg>
-            <span></span>
-          </span>
-          <span class="badge-outline" id="pModalExchangeBadge" style="display:none">Aceita permuta</span>
+      <!-- Seção Dinâmica de Imóveis Sugeridos em Baixo -->
+      <div class="ppage-related-section" id="pModalRelatedSection">
+        <div class="ppage-related-head">
+          <h2>Outros imóveis que você pode gostar</h2>
+          <p>Confira mais oportunidades selecionadas no portfólio da Elos Imobiliária</p>
         </div>
-
-        <h2 id="pModalTitle">Nome do Imóvel</h2>
-        <p class="property-location" id="pModalLocation">
-          <svg class="icon icon-xs" aria-hidden="true"><use href="#i-pin"/></svg> <span>Localização</span>
-        </p>
-
-        <div class="pmodal-price-box" id="pModalPriceBox">
-          <span class="pmodal-price-label">Valor a partir de</span>
-          <strong class="pmodal-price" id="pModalPrice">R$ 0,00</strong>
-        </div>
-
-        <ul class="property-specs pmodal-specs">
-          <li id="pModalBed"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-bed"/></svg> <span>-</span></li>
-          <li id="pModalBath"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-bath"/></svg> <span>-</span></li>
-          <li id="pModalArea"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-expand"/></svg> <span>-</span></li>
-          <li id="pModalParking"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-car"/></svg> <span>-</span></li>
-        </ul>
-
-        <div class="pmodal-exchange-info" id="pModalExchangeDetails" style="display:none">
-          <strong>Permuta:</strong> <span></span>
-        </div>
-
-        <div class="pmodal-desc-wrap">
-          <h3>Descrição do Imóvel</h3>
-          <p id="pModalDesc">Sem descrição cadastrada.</p>
-        </div>
-
-        <div class="pmodal-actions">
-          <a href="#" id="pModalWaBtn" target="_blank" rel="noopener" class="btn btn-whatsapp-pmodal btn-block">
-            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-whatsapp"/></svg> Tenho interesse — Falar no WhatsApp
-          </a>
-          <button type="button" id="pModalShareBtn" class="btn btn-outline btn-block" style="margin-top: 8px;">
-            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-share"/></svg> <span>Copiar Link do Imóvel</span>
-          </button>
-          <a href="#" id="pModalPdfBtn" target="_blank" rel="noopener" class="btn btn-outline btn-block" style="display:none; margin-top: 8px;">
-            <svg class="icon icon-sm" aria-hidden="true"><use href="#i-file-text"/></svg> Ver / Baixar Apresentação (PDF)
-          </a>
+        <div class="ppage-related-grid" id="pModalRelatedGrid">
+          <!-- Renderizado via JS -->
         </div>
       </div>
+
     </div>
   </div>
 </div>
