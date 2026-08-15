@@ -2386,6 +2386,12 @@ body.modal-open{overflow:hidden}
   z-index: 450;
   background: var(--bg-ice);
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-3) var(--ease-out-expo);
@@ -2719,18 +2725,100 @@ body.modal-open{overflow:hidden}
   gap: var(--sp-6);
 }
 
+/* =========================================================================
+   RESPONSIVIDADE MOBILE DA PÁGINA DO IMÓVEL (SEM ZOOM E COM ROLAGEM PERFEITA)
+   ========================================================================= */
 @media (max-width: 990px) {
   .ppage-grid {
     grid-template-columns: 1fr;
-    gap: var(--sp-7);
+    gap: var(--sp-6);
   }
   .ppage-gallery-col {
     position: static;
   }
   .ppage-main-img-wrap {
-    height: 320px;
+    height: 340px;
   }
   .ppage-related-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ppage-header {
+    padding: 10px 0;
+  }
+  .ppage-header-inner {
+    padding: 0 var(--sp-4);
+  }
+  .ppage-back-btn {
+    padding: 8px 14px;
+    font-size: var(--fs-xs);
+  }
+  .ppage-share-btn {
+    padding: 8px 14px;
+    font-size: var(--fs-xs);
+  }
+  .ppage-body {
+    padding: var(--sp-4) 0 var(--sp-8);
+  }
+  .ppage-container {
+    padding: 0 var(--sp-4);
+  }
+  .ppage-main-img-wrap {
+    height: 240px;
+    border-radius: var(--r-lg);
+  }
+  .ppage-thumb {
+    width: 76px;
+    height: 52px;
+  }
+  .ppage-info-col {
+    padding: var(--sp-5) var(--sp-4);
+    border-radius: var(--r-lg);
+    gap: var(--sp-4);
+  }
+  .ppage-title {
+    font-size: 1.5rem;
+  }
+  .ppage-location {
+    font-size: var(--fs-sm);
+  }
+  .ppage-price-card {
+    padding: var(--sp-4);
+  }
+  .ppage-price {
+    font-size: 1.65rem;
+  }
+  .ppage-specs-card {
+    padding: var(--sp-4);
+  }
+  .ppage-specs-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+  .ppage-specs-grid li {
+    gap: 8px;
+  }
+  .ppage-specs-grid .icon {
+    width: 20px;
+    height: 20px;
+  }
+  .ppage-specs-grid span {
+    font-size: 0.95rem;
+  }
+  .ppage-desc-content {
+    font-size: 0.98rem;
+    line-height: 1.65;
+  }
+  .btn-whatsapp-pmodal {
+    font-size: 0.95rem;
+    padding: 14px 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .ppage-specs-grid {
     grid-template-columns: 1fr;
   }
 }
