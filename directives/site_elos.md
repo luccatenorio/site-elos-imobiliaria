@@ -309,6 +309,68 @@ acentuação**: lê o arquivo UTF-8 como ANSI e regrava com dupla codificação
 Usar as ferramentas de edição do agente ou Node (`fs.readFileSync(f,'utf8')`).
 Conferência rápida: `node -e "..."` procurando por `/Ã[-¿]/`.
 
+## Performance de imagens (2026-08-16) — 97 MB por visita
+
+O cliente reportou que as fotos demoravam muito para aparecer no site
+publicado. Medido com CDP na home em produção:
+
+```
+i.ibb.co                       61 img   92,88 MB
+vercel.app (logo)               5 img    3,30 MB
+picsum (placeholders)           9 img    0,82 MB
+TOTAL                          75 img   96,99 MB
+```
+
+Fotos individuais de 4 a 8 MB, em **PNG** (formato sem perdas, péssimo para
+render fotográfico), algumas em 4K, exibidas em slots de ~500px.
+
+### Três causas
+1. **`aggressivePreloadImages()` baixava todas as fotos de todos os imóveis**
+   no load. Ironia: a função existia para deixar as imagens instantâneas e
+   fazia o oposto — as 8 capas visíveis disputavam banda com dezenas de fotos
+   de galerias que o visitante talvez nunca abrisse, e chegavam por último.
+   Agora pré-carrega só as capas dos 8 primeiros (`CAPAS_PRE_CARREGADAS`),
+   com `fetchpriority=high` nas 3 da primeira tela. O resto continua vindo no
+   hover/toque do card e ao abrir o detalhe.
+2. **Imagens servidas em tamanho original.** Resolvido com um redimensionador
+   em `supabase-service.js` (`optimizeImage`, constante `IMG_CDN`): as URLs
+   passam por **wsrv.nl** e voltam em WebP no tamanho de uso — 800px para
+   cards/hero, 1400px para a galeria do detalhe. Uma linha de config
+   (`IMG_CDN.ativo = false`) desliga tudo e volta ao original.
+3. **Logo do cabeçalho com 1,6 MB** (1180×1021), exibido a 72px — e ainda
+   usado como favicon, então baixava duas vezes. Reduzido para 335×290
+   (**26 KB**) e criado `favicon-elos.png` 192×192 (13 KB). O arquivo original
+   intocado continua em `logo-elos-cropped.png`.
+
+### Resultado medido
+```
+antes:  75 img   96,99 MB   |  imagens levando 4.700–8.600 ms
+depois: 31 img    2,83 MB   |  imagens levando 25–145 ms
+```
+
+### Cuidados
+- **Cache frio do wsrv.nl**: a *primeira* requisição de cada foto após o
+  deploy leva 4–8s, porque o CDN precisa baixar o original de 5 MB e
+  converter. Depois disso fica em ~30ms. Vale abrir o site uma vez após
+  publicar, para "esquentar" o cache antes do cliente ver.
+- wsrv.nl é um serviço gratuito de terceiro. **A solução definitiva é subir
+  as fotos já otimizadas** (WebP/JPEG, no máximo 1600px) e desligar o
+  `IMG_CDN`. Enquanto o CRM aceitar upload de PNG de 8 MB, o problema volta a
+  cada imóvel novo.
+- Ainda faltam `width`/`height` nas `<img>` geradas por JS (118 delas), o que
+  causa deslocamento de layout enquanto carregam. Melhoria pendente.
+
+## Corte horizontal no detalhe do imóvel — celular (2026-08-15)
+
+Conteúdo cortado à direita, sem como rolar. Duas causas somadas:
+`min-width:auto` (padrão em item de grid) impedia a coluna de encolher, e
+`.btn{white-space:nowrap}` fazia o rótulo do botão de PDF esticar a coluna
+para 382px numa tela de 360px. O `overflow-x:hidden` que já existia
+**escondia** o vazamento em vez de resolver — daí o "não tem como ver".
+Só acontecia em imóvel COM PDF. Corrigido com `min-width:0` nas colunas,
+quebra de linha nos botões de rótulo longo e `overflow-wrap:anywhere` no
+texto vindo do CRM. Verificado sem estouro em 320/360/390/430px.
+
 ## Redesign completo (2026-08-04)
 
 Reformulação visual da home mantendo **a mesma paleta, a mesma ordem de seções

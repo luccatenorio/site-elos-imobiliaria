@@ -10,11 +10,16 @@
 <meta property="og:description" content="Consultoria imobiliária de confiança em Belo Horizonte e Contagem. Imóveis exclusivos, avaliação justa e negociação facilitada.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
-<link rel="icon" type="image/png" href="assets/img/logo-elos-header.png?v=10">
-<link rel="apple-touch-icon" href="assets/img/logo-elos-header.png?v=10">
-<link rel="shortcut icon" href="assets/img/logo-elos-header.png?v=10">
+<link rel="icon" type="image/png" href="assets/img/favicon-elos.png?v=11">
+<link rel="apple-touch-icon" href="assets/img/favicon-elos.png?v=11">
+<link rel="shortcut icon" href="assets/img/favicon-elos.png?v=11">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Hosts das fotos dos imóveis: abre DNS/TLS antes do JS pedir as imagens. -->
+<link rel="preconnect" href="https://wsrv.nl" crossorigin>
+<link rel="preconnect" href="https://i.ibb.co" crossorigin>
+<link rel="dns-prefetch" href="https://wsrv.nl">
+<link rel="dns-prefetch" href="https://i.ibb.co">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=37">
 </head>
@@ -71,7 +76,7 @@
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a href="#" class="logo" aria-label="Elos Imobiliária — início">
-      <img src="assets/img/logo-elos-header.png" alt="Elos Imobiliária">
+      <img src="assets/img/logo-elos-header.png?v=11" alt="Elos Imobiliária" width="335" height="290" fetchpriority="high">
     </a>
 
     <nav class="main-nav" id="mainNav" aria-label="Navegação principal">
@@ -1299,7 +1304,7 @@
   </div>
 </div>
 
-<script src="js/supabase-service.js?v=2"></script>
-<script src="js/main.js?v=21"></script>
+<script src="js/supabase-service.js?v=3"></script>
+<script src="js/main.js?v=22"></script>
 </body>
 </html>

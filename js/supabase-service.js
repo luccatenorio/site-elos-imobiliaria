@@ -9,6 +9,43 @@ const SUPABASE_CONFIG = {
   orgId: '6c32f14b-3c60-41c1-8a31-ea943a715ba8'
 };
 
+/* =========================================================================
+   OTIMIZAÇÃO DE IMAGENS
+   -------------------------------------------------------------------------
+   As fotos vêm do ImgBB em tamanho original: renders em PNG de 4 a 8 MB,
+   alguns em 4K. Medido em 2026-08-08 na home publicada: 61 imagens,
+   **97 MB** numa única visita. É por isso que demoravam a aparecer.
+
+   Em vez de reenviar tudo, passamos as URLs por um redimensionador
+   (wsrv.nl, CDN gratuito sobre Cloudflare) que entrega WebP no tamanho
+   em que a imagem realmente aparece na tela.
+
+   Medido na mesma foto:  original 1.326 KB -> card 109 KB -> galeria 244 KB
+
+   Para desligar (voltar a servir o original), basta `ativo: false`.
+   O ideal a longo prazo é subir as fotos já otimizadas e desligar isto.
+   ========================================================================= */
+const IMG_CDN = {
+  ativo: true,
+  base: 'https://wsrv.nl/?url=',
+  larguraCard: 800,    // cards da vitrine e miniaturas do hero
+  larguraGaleria: 1400 // galeria da tela de detalhe
+};
+
+/**
+ * Devolve a URL da imagem redimensionada. Se não for uma URL http
+ * (ex.: o logo local usado como fallback), devolve inalterada.
+ */
+function optimizeImage(url, largura) {
+  if (!IMG_CDN.ativo) return url;
+  if (typeof url !== 'string' || !url.startsWith('http')) return url;
+  if (url.includes('wsrv.nl')) return url;   // evita otimizar duas vezes
+
+  const semProtocolo = url.replace(/^https?:\/\//, '');
+  // `we` = without enlargement: nunca aumenta uma imagem pequena.
+  return `${IMG_CDN.base}${encodeURIComponent(semProtocolo)}&w=${largura}&output=webp&q=82&we`;
+}
+
 /**
  * Formata um valor numérico para Moeda Real (R$)
  */
@@ -128,8 +165,10 @@ async function fetchSupabaseEnterprises() {
         parkingSpots: parseInt(item.parking_spots, 10) || 0,
         region: item.region || 'Belo Horizonte e Região - MG',
         constructorName: item.constructor_name || null,
-        photos: photos,
-        mainPhoto: photos[0],
+        // Redimensionadas: a galeria pede mais resolução que os cards.
+        photos: photos.map(p => optimizeImage(p, IMG_CDN.larguraGaleria)),
+        mainPhoto: optimizeImage(photos[0], IMG_CDN.larguraCard),
+        photosOriginais: photos,   // guardadas caso precise do arquivo cheio
         pdfUrl: item.pdf_url || null,
         tableUrl: item.table_url || null,
         constructionStatus: item.construction_status || null,

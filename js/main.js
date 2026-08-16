@@ -1617,25 +1617,29 @@ $$('.fav-btn').forEach(btn => {
     }
   }
 
+  /* Pré-carrega SÓ as capas dos primeiros imóveis.
+     -------------------------------------------------------------------
+     A versão anterior baixava todas as fotos de todos os imóveis de uma
+     vez. Medido na home publicada: 61 imagens, 97 MB. O efeito era o
+     oposto do pretendido — as 8 capas que o visitante realmente vê
+     disputavam banda com dezenas de fotos de galerias que ele talvez
+     nunca abrisse, e chegavam por último.
+
+     As fotos restantes de cada imóvel são buscadas no hover/toque do
+     card (ver `preloadTargetPhotos`) e ao abrir a tela de detalhe. */
+  const CAPAS_PRE_CARREGADAS = 8;
+
   function aggressivePreloadImages(enterprises) {
     if (!enterprises || !Array.isArray(enterprises)) return;
 
-    enterprises.forEach((item, itemIdx) => {
-      if (item.photos && Array.isArray(item.photos)) {
-        item.photos.forEach((src, photoIdx) => {
-          if (src && typeof src === 'string' && src.startsWith('http')) {
-            const img = new Image();
-            img.decoding = 'async';
-            if (itemIdx < 8 && photoIdx === 0) {
-              img.fetchPriority = 'high';
-            }
-            img.src = src;
-            if (img.decode) {
-              img.decode().catch(() => {});
-            }
-          }
-        });
-      }
+    enterprises.slice(0, CAPAS_PRE_CARREGADAS).forEach((item, idx) => {
+      const capa = item.mainPhoto || (item.photos && item.photos[0]);
+      if (!capa || typeof capa !== 'string' || !capa.startsWith('http')) return;
+
+      const img = new Image();
+      img.decoding = 'async';
+      if (idx < 3) img.fetchPriority = 'high';   // as que aparecem na 1ª tela
+      img.src = capa;
     });
   }
 
