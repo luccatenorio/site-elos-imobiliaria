@@ -194,8 +194,19 @@ async function fetchSupabaseEnterprises() {
  * 'Respostas do Formulário / Meta' do CRM e dispara a roleta de corretores.
  */
 async function submitContactForm(formData) {
-  const { nome, telefone, email, atendimento, horario, mensagem } = formData;
+  const { 
+    nome, telefone, email, atendimento, horario, mensagem,
+    origin = 'Site Elos',
+    media = 'Formulário Site',
+    customMetaAnswers = null
+  } = formData;
   const authKey = SUPABASE_CONFIG.serviceKey || SUPABASE_CONFIG.anonKey;
+
+  const metaAnswers = customMetaAnswers || [
+    { name: 'Como quer ser atendido?', values: [atendimento || 'Não informado'] },
+    { name: 'Horário de atendimento', values: [horario || 'Não informado'] },
+    { name: 'Conte o que você procura', values: [mensagem || 'Não informado'] }
+  ];
 
   // 1. Tentar executar via RPC submit_website_lead
   try {
@@ -214,7 +225,7 @@ async function submitContactForm(formData) {
         p_atendimento: atendimento || null,
         p_horario: horario || null,
         p_mensagem: mensagem || null,
-        p_origin: 'Site Elos'
+        p_origin: origin
       })
     });
 
@@ -230,20 +241,14 @@ async function submitContactForm(formData) {
   try {
     const stageId = '1ab79b9c-5f15-406f-b6c1-dd269a0d2378'; // Estágio 'Novo Lead' da Org ELOS
 
-    const metaAnswers = [
-      { name: 'Como quer ser atendido?', values: [atendimento || 'Não informado'] },
-      { name: 'Horário de atendimento', values: [horario || 'Não informado'] },
-      { name: 'Conte o que você procura', values: [mensagem || 'Não informado'] }
-    ];
-
     const leadPayload = {
       organization_id: SUPABASE_CONFIG.orgId,
       stage_id: stageId,
       full_name: (nome || '').trim(),
       phone: (telefone || '').trim(),
       email: (email || '').trim().toLowerCase(),
-      origin: 'Site Elos',
-      media: 'Formulário Site',
+      origin: origin,
+      media: media,
       entry_method: 'site_form',
       is_private: false,
       meta_answers: metaAnswers,
@@ -270,7 +275,7 @@ async function submitContactForm(formData) {
     const insertedLeads = await insertRes.json();
     const newLead = insertedLeads[0];
 
-    // Acciona a roleta de distribuição dos corretores
+    // Aciona a roleta de distribuição dos corretores
     if (newLead && newLead.id) {
       fetch(`${SUPABASE_CONFIG.url}/rest/v1/rpc/distribute_new_lead`, {
         method: 'POST',

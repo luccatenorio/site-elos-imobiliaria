@@ -207,7 +207,7 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
     return linhas.join('\n');
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const campos = Object.keys(REGRAS).map(id => document.getElementById(id)).filter(Boolean);
@@ -221,6 +221,46 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
       primeiroErro.focus({ preventScroll: true });
       primeiroErro.scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'center' });
       return;
+    }
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn ? submitBtn.textContent : 'Enviar candidatura';
+
+    try {
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+      }
+
+      // Envia os dados da candidatura para o CRM da Organização ELOS
+      if (window.SupabaseService && typeof window.SupabaseService.submitContactForm === 'function') {
+        const customAnswers = [
+          { name: 'Idade', values: [valor('a-idade') || 'Não informado'] },
+          { name: 'Cidade onde mora', values: [valor('a-cidade') || 'Não informado'] },
+          { name: 'Possui CRECI?', values: [valor('a-creci') || 'Não informado'] },
+          { name: 'Experiência com vendas', values: [valor('a-experiencia') || 'Não informado'] },
+          { name: 'Disponibilidade', values: [valor('a-disponibilidade') || 'Não informado'] },
+          { name: 'Tem veículo próprio?', values: [valor('a-veiculo') || 'Não informado'] },
+          { name: 'LinkedIn / Instagram', values: [valor('a-link') || 'Não informado'] },
+          { name: 'Sobre o candidato', values: [valor('a-sobre') || 'Não informado'] }
+        ];
+
+        await window.SupabaseService.submitContactForm({
+          nome: valor('a-nome'),
+          telefone: valor('a-telefone'),
+          email: valor('a-email'),
+          origin: 'Trabalhe Conosco',
+          media: 'Formulário Trabalhe Conosco',
+          customMetaAnswers: customAnswers
+        });
+      }
+    } catch (err) {
+      console.warn('Erro ao registrar candidatura no CRM ELOS:', err);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      }
     }
 
     const url = `https://wa.me/${WHATSAPP_RH}?text=${encodeURIComponent(montarMensagem())}`;
