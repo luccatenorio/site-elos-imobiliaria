@@ -967,7 +967,6 @@ $$('.fav-btn').forEach(btn => {
   const modalExchangeDetails = $('#pModalExchangeDetails');
   const modalDesc = $('#pModalDesc');
   const modalWaBtn = $('#pModalWaBtn');
-  const modalPdfBtn = $('#pModalPdfBtn');
   const modalShareBtn = $('#pModalShareBtn');
   const modalMainImg = $('#pModalMainImg');
   const modalImgCount = $('#pModalImgCount');
@@ -1045,16 +1044,6 @@ $$('.fav-btn').forEach(btn => {
       const shareUrl = `${window.location.origin}${window.location.pathname}?imovel=${item.id}`;
       const msg = `Olá! Vi o imóvel "${item.name}" no site da Elos Imobiliária (${shareUrl}), tenho interesse e gostaria de receber mais informações.`;
       modalWaBtn.href = `https://wa.me/5531992497076?text=${encodeURIComponent(msg)}`;
-    }
-
-    if (modalPdfBtn) {
-      const pdfWrap = $('#pModalPdfWrap');
-      if (item.pdfUrl) {
-        modalPdfBtn.href = item.pdfUrl;
-        if (pdfWrap) pdfWrap.style.display = 'block';
-      } else {
-        if (pdfWrap) pdfWrap.style.display = 'none';
-      }
     }
 
     renderRelatedEnterprises(item.id);

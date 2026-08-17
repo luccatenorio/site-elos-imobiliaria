@@ -2934,14 +2934,11 @@ body.modal-open{overflow:hidden}
 }
 
 /* 2. Botões de rótulo longo podem quebrar em duas linhas em vez de esticar
-      o container. Vale para o do PDF e o do WhatsApp. */
-#pModalPdfBtn,
-#pModalPdfBtn span,
+      o container. Vale para o do WhatsApp. */
 .btn-whatsapp-pmodal,
 .btn-whatsapp-pmodal span {
   white-space: normal;
 }
-#pModalPdfBtn,
 .btn-whatsapp-pmodal {
   height: auto;
   text-align: center;
