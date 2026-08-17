@@ -174,6 +174,31 @@ quica de forma cômica. Nada pisca, nada gira em loop infinito pedindo atenção
 5. Carrossel navegável por teclado; modal fecha com `Esc` e devolve o foco.
 6. Estado de aba/slide ativo nunca comunicado só por cor.
 
+## Header — dois estados obrigatórios
+
+O header **flutua sobre a primeira seção** (`position:fixed`), nunca empurra a
+página. Ele tem dois estados e os dois precisam ser respeitados em qualquer
+alteração:
+
+- **Topo** (sem `.is-scrolled`): fundo transparente, com um véu navy em
+  `.site-header::before` que desce 80px além da barra. Texto **branco**, logo
+  **branco** (`.logo-light`).
+- **Rolado** (`.is-scrolled`, a partir de 60px): vidro `rgba(bg-ice,.72)` com
+  `blur(22px)`. Texto **navy**, logo **colorido** (`.logo-dark`).
+
+Regras que não podem ser quebradas:
+
+1. **O véu nunca termina na borda da caixa do header** — vira uma emenda de 1px
+   atravessando a foto. Ele vive no `::before`, mais alto que o header.
+2. **`--header-h`** é medido em JS **só no estado do topo** e consumido por
+   `.hero-content` e `.careers-hero`. Sem isso o conteúdo nasce atrás da barra;
+   medindo sempre, o hero pula durante a rolagem.
+3. **O estado do topo exige primeira seção escura.** Página nova com topo claro
+   precisa nascer com `.is-scrolled` ou ganhar um modificador próprio — texto
+   branco sobre seção clara é falha de contraste, não escolha estética.
+4. O véu foi calibrado em `.66 → .52` na faixa do menu para garantir 4.5:1 sobre
+   um hero de céu claro. **Reduzir exige reconferir o contraste.**
+
 ## Componentes canônicos
 
 - `.btn` + `.btn-primary` (navy → teal no hover, com brilho que varre)

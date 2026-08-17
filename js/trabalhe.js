@@ -24,9 +24,29 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
   const toTop = $('#toTop');
   let ticking = false;
 
+  /* Igual à home: o header flutua sobre o topo escuro desta página, então
+     medimos a altura dele (só no estado do topo) para a seção reservar
+     espaço. Ver comentário em main.js. */
+  function medirHeader() {
+    if (!header || window.scrollY > 15) return;
+    document.documentElement.style.setProperty('--header-h', `${Math.round(header.offsetHeight)}px`);
+  }
+  medirHeader();
+  window.addEventListener('load', medirHeader);
+  window.addEventListener('resize', medirHeader);
+  if ('ResizeObserver' in window && header) {
+    new ResizeObserver(medirHeader).observe(header);
+  }
+
   function onScroll() {
     const y = window.scrollY;
-    if (header) header.classList.toggle('is-scrolled', y > 20);
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = max > 0 ? Math.min(1, y / max) : 0;
+
+    if (header) {
+      header.style.setProperty('--header-scroll-ratio', ratio.toFixed(3));
+      header.classList.toggle('is-scrolled', y > 20);
+    }
     if (toTop) toTop.classList.toggle('is-visible', y > 620);
     ticking = false;
   }

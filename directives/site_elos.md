@@ -309,6 +309,58 @@ acentuação**: lê o arquivo UTF-8 como ANSI e regrava com dupla codificação
 Usar as ferramentas de edição do agente ou Node (`fs.readFileSync(f,'utf8')`).
 Conferência rápida: `node -e "..."` procurando por `/Ã[-¿]/`.
 
+## Header translúcido sobre o hero (2026-08-16)
+
+Pedido do cliente: "não quero ela branca, quero meio transparente".
+
+Antes o header era `position:sticky` — ele **ocupava espaço** e o hero começava
+abaixo dele. Deixar transparente naquele arranjo não mostrava nada: atrás da
+barra só existia o fundo branco da página. Por isso a barra **passou a flutuar
+sobre o hero** (`position:fixed`).
+
+### Os dois estados
+| | Topo | Rolado (`.is-scrolled`, y > 60) |
+| --- | --- | --- |
+| Fundo | Transparente + véu navy que se dissolve | `rgba(bg-ice,.72)` + `blur(22px)` |
+| Texto | Branco, hover teal-300 | Navy, hover teal-600 |
+| Logo | `logo-elos-footer-white.png` | `logo-elos-header.png` |
+| Dropdown | Vidro navy escuro | Branco |
+
+O logo colorido é navy — sobre a foto escura do hero ele sumiria. Por isso os
+**dois logos ficam empilhados** no `.logo` e fazem crossfade por opacidade
+(`.logo-dark` / `.logo-light`). Os dois arquivos têm proporção praticamente
+idêntica (1.155 vs 1.156), então sobrepõem sem tremer.
+
+### `--header-h`
+O header flutua, então o hero precisa reservar a altura dele ou o conteúdo
+nasce escondido atrás da barra. `main.js` e `trabalhe.js` medem o header e
+publicam `--header-h` em `:root`. **Medem só no estado do topo** (`scrollY <=
+15`): quando rola, o logo encolhe e o header diminui — atualizar sempre faria
+o hero pular durante a rolagem. Consumido por `.hero-content` e `.careers-hero`.
+
+### Três armadilhas que apareceram no caminho
+1. **Emenda de 1px atravessando a foto.** O degradê do véu terminava na borda
+   da caixa do header, e o limite do `backdrop-filter` criava uma linha
+   visível. Resolvido movendo o véu para `.site-header::before`, com
+   `height:calc(100% + 80px)` — o degradê morre 80px **abaixo** do header, longe
+   de qualquer borda.
+2. **`position:sticky` no mobile.** Havia um `@media (max-width:768px)` com
+   `position:sticky` que anulava o `fixed`, e no celular a barra transparente
+   mostrava só o branco da página. Trocado para `fixed`.
+3. **Colisão no mobile.** O `@media (max-width:560px)` sobrescrevia
+   `.hero-content{padding-top}` com um valor fixo, e a tag do imóvel nascia
+   atrás do logo. Passou a usar o mesmo `calc(var(--header-h) + …)`.
+
+### Contraste
+O véu começa em `.66` e ainda tem `.52` na faixa onde o menu fica. Foi
+calibrado assim de propósito: com `.30` o texto branco não garantia 4.5:1 num
+slide de hero com céu claro. **Não reduzir sem reconferir com um hero claro.**
+
+⚠️ **Limite conhecido**: o estado do topo assume que a primeira seção da página
+é escura (hero com overlay navy, ou `--grad-navy` no Trabalhe Conosco). Uma
+página nova com primeira seção clara vai ficar com texto branco sobre fundo
+claro. Nesse caso, dar `is-scrolled` desde o início ou criar um modificador.
+
 ## Performance de imagens (2026-08-16) — 97 MB por visita
 
 O cliente reportou que as fotos demoravam muito para aparecer no site

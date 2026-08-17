@@ -21,15 +21,36 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
   const header = $('#siteHeader');
   const progress = $('#scrollProgress span');
   const toTop = $('#toTop');
+  const navLinks = $$('.main-nav .nav-link[href^="#"]');
+  const sections = $$('section[id], main > [id]');
   let isScrolled = false;
+  let ticking = false;
+
+  /* O header flutua sobre o hero, então o hero precisa saber a altura dele
+     para não nascer com o conteúdo escondido atrás da barra.
+     Medimos SÓ no estado do topo — quando rola, o logo encolhe e o header
+     diminui; se atualizássemos sempre, o hero pularia durante a rolagem. */
+  function medirHeader() {
+    if (!header || window.scrollY > 15) return;
+    document.documentElement.style.setProperty('--header-h', `${Math.round(header.offsetHeight)}px`);
+  }
+  medirHeader();
+  window.addEventListener('load', medirHeader);
+  window.addEventListener('resize', medirHeader);
+  if ('ResizeObserver' in window && header) {
+    new ResizeObserver(medirHeader).observe(header);
+  }
 
   function onScroll() {
     const y = window.scrollY;
     const max = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = max > 0 ? Math.min(1, y / max) : 0;
 
-    // Histerese para eliminar oscilações no header ao rolar
     if (header) {
-      if (!isScrolled && y > 80) {
+      header.style.setProperty('--header-scroll-ratio', ratio.toFixed(3));
+
+      // Histerese para eliminar oscilações no header ao rolar
+      if (!isScrolled && y > 60) {
         isScrolled = true;
         header.classList.add('is-scrolled');
       } else if (isScrolled && y <= 15) {
@@ -37,7 +58,33 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
         header.classList.remove('is-scrolled');
       }
     }
-    if (progress) progress.style.width = `${max > 0 ? (y / max) * 100 : 0}%`;
+
+    // Scroll Spy: Destaca automaticamente a aba/seção atual conforme o usuário rola a página
+    if (navLinks.length && sections.length) {
+      let currentSectionId = '';
+      const scrollPos = y + 140;
+
+      sections.forEach(sec => {
+        const top = sec.offsetTop;
+        const height = sec.offsetHeight;
+        if (scrollPos >= top && scrollPos < top + height) {
+          currentSectionId = sec.getAttribute('id');
+        }
+      });
+
+      if (y < 80) currentSectionId = '';
+
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === '#' || href === '') {
+          link.classList.toggle('active', !currentSectionId);
+        } else {
+          link.classList.toggle('active', href === `#${currentSectionId}`);
+        }
+      });
+    }
+
+    if (progress) progress.style.width = `${ratio * 100}%`;
     if (toTop) toTop.classList.toggle('is-visible', y > 620);
     ticking = false;
   }

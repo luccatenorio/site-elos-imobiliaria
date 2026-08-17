@@ -260,17 +260,67 @@ textarea{resize:vertical}
   box-shadow:0 0 12px rgba(58,134,171,.6);
 }
 
-/* ===== Header ===== */
+/* ===== Header =====
+   O header FLUTUA sobre o hero (position:fixed), não empurra a página.
+   - No topo: praticamente transparente, só um véu navy para o texto claro
+     ficar legível sobre a foto. Logo em versão branca.
+   - Ao rolar: vira vidro gelo, texto navy, logo colorido.
+   `--header-h` é medido em JS no estado do topo e usado pelo hero para não
+   deixar nada escondido atrás da barra. */
 .site-header{
-  position:sticky;top:0;z-index:100;
-  background:rgba(245,246,242,.93);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid transparent;
-  transition:background-color var(--dur-2) var(--ease-out-quart),
-             box-shadow var(--dur-2) var(--ease-out-quart),
-             border-color var(--dur-2) var(--ease-out-quart);
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:transparent;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  border-bottom:0 solid transparent;
+  box-shadow:none;
+  transition:background var(--dur-3) var(--ease-out-quart),
+             box-shadow var(--dur-3) var(--ease-out-quart),
+             border-color var(--dur-3) var(--ease-out-quart),
+             backdrop-filter var(--dur-3) var(--ease-out-quart);
 }
+
+/* Véu do topo: fica numa camada própria que desce 80px ALÉM do header.
+   Se o degradê terminasse na borda da caixa, sobrava uma emenda de 1px
+   visível atravessando a foto (bug real, corrigido em 2026-08-16). */
+.site-header::before{
+  content:'';position:absolute;left:0;right:0;top:0;z-index:-1;
+  height:calc(100% + 80px);pointer-events:none;
+  /* O véu é mais forte na faixa onde o menu fica (meio do header): sobre
+     um slide de céu claro, .30 não garantia os 4.5:1 do texto branco. */
+  background:linear-gradient(180deg,
+              rgba(10,25,48,.66) 0%,
+              rgba(10,25,48,.52) 40%,
+              rgba(10,25,48,.24) 72%,
+              rgba(10,25,48,0) 100%);
+  opacity:1;
+  transition:opacity var(--dur-3) var(--ease-out-quart);
+}
+.site-header.is-scrolled::before{opacity:0}
+
+/* Estado do topo: tudo em claro, sobre a foto do hero. */
+.site-header:not(.is-scrolled) .nav-link{color:var(--white)}
+.site-header:not(.is-scrolled) .nav-link:hover,
+.site-header:not(.is-scrolled) .nav-link.active{color:var(--teal-300)}
+.site-header:not(.is-scrolled) .nav-link-wa,
+.site-header:not(.is-scrolled) .nav-link-wa:hover{color:var(--wa-green)}
+.site-header:not(.is-scrolled) .burger i{background:var(--white)}
+.site-header:not(.is-scrolled) .dropdown{
+  background:rgba(15,37,64,.92);border-color:rgba(255,255,255,.14);
+}
+.site-header:not(.is-scrolled) .dropdown li a{color:var(--gray-300)}
+.site-header:not(.is-scrolled) .dropdown li a:hover{
+  background:rgba(255,255,255,.08);color:var(--white);
+}
+
+/* Troca do logo: branco no topo, colorido depois. */
+.logo{position:relative}
+.logo .logo-light{position:absolute;left:0;top:0}
+.logo img{transition:height var(--dur-3) var(--ease-out-expo),
+                     transform var(--dur-3) var(--ease-out-expo),
+                     opacity var(--dur-3) var(--ease-out-quart)}
+.site-header:not(.is-scrolled) .logo-dark{opacity:0}
+.site-header.is-scrolled .logo-light{opacity:0}
 body.modal-open .site-header,
 body.nav-open .site-header,
 .site-header.has-open-nav {
@@ -278,10 +328,14 @@ body.nav-open .site-header,
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
+/* Vidro gelo depois que a página rola: o conteúdo passa por baixo e
+   aparece desfocado através da barra. */
 .site-header.is-scrolled{
-  background:rgba(245,246,242,.98);
-  box-shadow:0 6px 26px -14px rgba(10,25,48,.4);
-  border-bottom-color:var(--gray-100);
+  background:rgba(245,246,242,.72);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:0 8px 30px -6px rgba(10,25,48,.12);
+  border-bottom-color:rgba(58,134,171,.18);
 }
 .header-inner{display:flex;align-items:center;gap:var(--sp-7);padding:4px var(--sp-6)}
 .logo{display:block;flex-shrink:0;margin-right:10px}
@@ -436,7 +490,11 @@ body.nav-open .site-header,
 .hero-content{
   position:relative;z-index:2;width:100%;
   display:grid;grid-template-columns:1.05fr .95fr;gap:var(--sp-10);
-  align-items:center;padding-top:var(--sp-12);padding-bottom:var(--sp-12);
+  align-items:center;
+  /* O header flutua por cima: reserva a altura dele para o conteúdo do
+     hero não nascer escondido atrás da barra. --header-h vem do JS. */
+  padding-top:calc(var(--header-h, 150px) + var(--sp-6));
+  padding-bottom:var(--sp-12);
 }
 .hero-highlight{color:var(--white);max-width:520px}
 .hero-title{
@@ -530,7 +588,9 @@ body.nav-open .site-header,
 @media (max-width:560px){
   .hero-thumbs{display:none}
   .hero-slide{min-height:auto}
-  .hero-content{padding-top:var(--sp-9);padding-bottom:var(--sp-10)}
+  /* Mantém a reserva da altura do header — sem ela a tag do imóvel nasce
+     atrás do logo. */
+  .hero-content{padding-top:calc(var(--header-h, 92px) + var(--sp-5));padding-bottom:var(--sp-10)}
   .hero-arrow{top:auto;bottom:22px;transform:none;width:40px;height:40px}
   .hero-arrow-prev{left:auto;right:70px}
   .hero-arrow-next{right:20px}
@@ -1369,7 +1429,8 @@ body.modal-open{overflow:hidden}
 .careers-hero{
   position:relative;overflow:hidden;
   background:var(--grad-navy);
-  padding:clamp(90px,10vw,150px) 0 clamp(70px,8vw,110px);
+  /* Mesmo motivo do hero da home: o header flutua sobre esta seção. */
+  padding:calc(var(--header-h, 150px) + var(--sp-8)) 0 clamp(70px,8vw,110px);
 }
 .careers-hero::after{
   content:'';position:absolute;inset:0;pointer-events:none;
@@ -1869,9 +1930,14 @@ body.modal-open{overflow:hidden}
 
 /* ===== Header e Logo Responsivos no Mobile ===== */
 @media (max-width: 768px) {
+  /* fixed, igual ao desktop: com sticky o header ocupava espaço e o hero
+     começava abaixo dele, então a barra transparente mostrava só o fundo
+     branco da página em vez da foto. */
   .site-header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 100;
   }
   .header-inner {
