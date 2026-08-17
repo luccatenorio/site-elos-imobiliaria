@@ -731,12 +731,49 @@ $$('.fav-btn').forEach(btn => {
     btn.addEventListener('click', () => { if (current > 0) show(current - 1); });
   });
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // Front-end apenas: ainda não há backend ligado neste formulário.
-    $$('.contact-panel, .contact-steps, .contact-progress', form)
-      .forEach(el => { el.style.display = 'none'; });
-    if (success) success.classList.add('is-visible');
+
+    // Valida os campos da última etapa antes do envio
+    const currentInputs = $$('input, select, textarea', panels[current]);
+    const ok = currentInputs.every(input => validateField(input));
+    if (!ok) return;
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn ? submitBtn.textContent : 'Enviar';
+
+    try {
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+      }
+
+      const formData = {
+        nome: $('#c-nome')?.value || '',
+        telefone: $('#c-telefone')?.value || '',
+        email: $('#c-email')?.value || '',
+        atendimento: $('#c-atendimento')?.value || '',
+        horario: $('#c-horario')?.value || '',
+        mensagem: $('#c-mensagem')?.value || ''
+      };
+
+      if (window.SupabaseService && typeof window.SupabaseService.submitContactForm === 'function') {
+        await window.SupabaseService.submitContactForm(formData);
+      }
+
+      // Esconde painéis e exibe tela de sucesso
+      $$('.contact-panel, .contact-steps, .contact-progress', form)
+        .forEach(el => { el.style.display = 'none'; });
+      if (success) success.classList.add('is-visible');
+    } catch (err) {
+      console.error('Erro ao enviar formulário do site para o CRM:', err);
+      alert('Ocorreu um problema ao enviar seus dados. Por favor, tente novamente ou entre em contato diretamente pelo WhatsApp.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      }
+    }
   });
 })();
 

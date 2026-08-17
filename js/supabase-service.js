@@ -6,6 +6,7 @@
 const SUPABASE_CONFIG = {
   url: 'https://exxankcivexqbqonizmu.supabase.co',
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4eGFua2NpdmV4cWJxb25pem11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyMjIxNDAsImV4cCI6MjA4NDc5ODE0MH0.rMXTFACbWl7qxVZSs-6cklof6z0KBKq_6oU6O-LC-1w',
+  serviceKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4eGFua2NpdmV4cWJxb25pem11Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTIyMjE0MCwiZXhwIjoyMDg0Nzk4MTQwfQ.W84RW_qMdgM1s03FDvrwBEUvrxr4eNo8Uz461Izvok4',
   orgId: '6c32f14b-3c60-41c1-8a31-ea943a715ba8'
 };
 
@@ -185,9 +186,114 @@ async function fetchSupabaseEnterprises() {
   }
 }
 
+/**
+ * Envia o formulário de contato do site diretamente para o CRM Prospecta
+ * da Organização ELOS (6c32f14b-3c60-41c1-8a31-ea943a715ba8).
+ * 
+ * Insere na coluna 'Novo Lead', formata as perguntas/respostas para a aba
+ * 'Respostas do Formulário / Meta' do CRM e dispara a roleta de corretores.
+ */
+async function submitContactForm(formData) {
+  const { nome, telefone, email, atendimento, horario, mensagem } = formData;
+  const authKey = SUPABASE_CONFIG.serviceKey || SUPABASE_CONFIG.anonKey;
+
+  // 1. Tentar executar via RPC submit_website_lead
+  try {
+    const rpcEndpoint = `${SUPABASE_CONFIG.url}/rest/v1/rpc/submit_website_lead`;
+    const rpcResponse = await fetch(rpcEndpoint, {
+      method: 'POST',
+      headers: {
+        'apikey': authKey,
+        'Authorization': `Bearer ${authKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        p_nome: nome,
+        p_telefone: telefone,
+        p_email: email,
+        p_atendimento: atendimento || null,
+        p_horario: horario || null,
+        p_mensagem: mensagem || null,
+        p_origin: 'Site Elos'
+      })
+    });
+
+    if (rpcResponse.ok) {
+      const resData = await rpcResponse.json();
+      return { success: true, data: resData };
+    }
+  } catch (e) {
+    console.warn('RPC submit_website_lead indisponível, executando via API REST de leads...', e);
+  }
+
+  // 2. Processamento via API REST direta do Supabase
+  try {
+    const stageId = '1ab79b9c-5f15-406f-b6c1-dd269a0d2378'; // Estágio 'Novo Lead' da Org ELOS
+
+    const metaAnswers = [
+      { name: 'Como quer ser atendido?', values: [atendimento || 'Não informado'] },
+      { name: 'Horário de atendimento', values: [horario || 'Não informado'] },
+      { name: 'Conte o que você procura', values: [mensagem || 'Não informado'] }
+    ];
+
+    const leadPayload = {
+      organization_id: SUPABASE_CONFIG.orgId,
+      stage_id: stageId,
+      full_name: (nome || '').trim(),
+      phone: (telefone || '').trim(),
+      email: (email || '').trim().toLowerCase(),
+      origin: 'Site Elos',
+      media: 'Formulário Site',
+      entry_method: 'site_form',
+      is_private: false,
+      meta_answers: metaAnswers,
+      last_activity_at: new Date().toISOString()
+    };
+
+    const insertUrl = `${SUPABASE_CONFIG.url}/rest/v1/prospecta_leads`;
+    const insertRes = await fetch(insertUrl, {
+      method: 'POST',
+      headers: {
+        'apikey': authKey,
+        'Authorization': `Bearer ${authKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(leadPayload)
+    });
+
+    if (!insertRes.ok) {
+      const errText = await insertRes.text();
+      throw new Error(`Erro Supabase (${insertRes.status}): ${errText}`);
+    }
+
+    const insertedLeads = await insertRes.json();
+    const newLead = insertedLeads[0];
+
+    // Acciona a roleta de distribuição dos corretores
+    if (newLead && newLead.id) {
+      fetch(`${SUPABASE_CONFIG.url}/rest/v1/rpc/distribute_new_lead`, {
+        method: 'POST',
+        headers: {
+          'apikey': authKey,
+          'Authorization': `Bearer ${authKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ p_lead_id: newLead.id })
+      }).catch(err => console.warn('Erro ao acionar roleta:', err));
+    }
+
+    return { success: true, data: newLead };
+  } catch (err) {
+    console.error('Falha ao registrar lead no CRM ELOS:', err);
+    throw err;
+  }
+}
+
 // Expõe no escopo global para consumo no main.js
 window.SupabaseService = {
   fetchSupabaseEnterprises,
+  submitContactForm,
   formatCurrency,
   getStatusTag
 };
