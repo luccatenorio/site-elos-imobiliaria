@@ -1480,11 +1480,86 @@ $$('.fav-btn').forEach(btn => {
   }
 
   /**
-   * Atualiza os slides do Hero do topo com 3 imóveis distintos do CRM com fotos reais (substituindo Águas Residence pelo Del Iara)
+   * Atualiza os slides do Hero do topo com os 3 imóveis customizados do CRM (ou fallback do catálogo)
    */
-  function updateHeroSlides(list) {
+  function updateHeroSlides(list, heroCustom = []) {
     const heroSlides = $('#heroSlides');
     if (!heroSlides) return;
+
+    if (heroCustom && heroCustom.length > 0) {
+      heroSlides.innerHTML = heroCustom.map((item, index) => {
+        const activeClass = index === 0 ? 'is-active' : '';
+        const ariaHidden = index === 0 ? 'false' : 'true';
+
+        const bgImg = item.bg_image_url || 'assets/img/logo-elos-header.png';
+        const cardTop = item.card_image_top || bgImg;
+        const cardBottom = item.card_image_bottom || bgImg;
+
+        const badgeText = item.badge_text || '• EM CONSTRUÇÃO';
+        const titleText = item.title || 'Empreendimento Elos';
+        const locationText = item.location || 'Belo Horizonte e Região - MG';
+        const pricePrefix = item.price_prefix || 'Valor a partir de';
+        const priceVal = item.price_value ? window.SupabaseService.formatCurrency(item.price_value) : 'Sob consulta';
+        const financingTag = item.financing_badge || 'Financiamento Facilitado';
+        const bullet1 = item.bullet_1 || '';
+        const bullet2 = item.bullet_2 || '';
+        const viewUrl = item.button_view_url || '#';
+        const contactUrl = item.button_contact_url || '#contato';
+
+        // Tenta encontrar o imóvel correspondente no catálogo para abrir o modal caso clique
+        const matchingProp = item.enterprise_id ? list.find(p => p.id === item.enterprise_id) : null;
+        const propId = matchingProp ? matchingProp.id : '';
+
+        return `
+          <article class="hero-slide ${activeClass}" aria-hidden="${ariaHidden}">
+            <div class="hero-slide-bg" style="background-image:url('${bgImg}')"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-glow" aria-hidden="true"></div>
+            <div class="container hero-content">
+              <div class="hero-highlight">
+                <span class="tag tag-construction"><i class="tag-dot"></i>${badgeText}</span>
+                <h2 class="hero-title">${titleText}</h2>
+                <p class="hero-location"><svg class="icon icon-xs" aria-hidden="true"><use href="#i-pin"/></svg> ${locationText}</p>
+                <div class="hero-price-row">
+                  <div class="hero-price"><span class="label">${pricePrefix}</span><strong>${priceVal}</strong></div>
+                  <div class="hero-price"><span class="label">Financiamento</span><strong>${financingTag}</strong></div>
+                </div>
+                <ul class="hero-badges">
+                  ${bullet1 ? `<li>${bullet1}</li>` : ''}
+                  ${bullet2 ? `<li>${bullet2}</li>` : ''}
+                </ul>
+                <div class="hero-actions">
+                  ${propId ? `<button type="button" class="btn btn-primary btn-hero-detail" data-id="${propId}">Ver empreendimento <svg class="icon icon-xs btn-arrow" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>` : `<a href="${viewUrl}" class="btn btn-primary">Ver empreendimento <svg class="icon icon-xs btn-arrow" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>`}
+                  <a href="${contactUrl}" class="btn btn-ghost">Falar com corretor</a>
+                </div>
+              </div>
+              <div class="hero-thumbs" data-parallax="18">
+                <img src="${cardTop}" alt="${titleText}" loading="eager" decoding="async" ${propId ? `data-id="${propId}"` : ''}>
+                <img src="${cardBottom}" alt="${titleText}" loading="eager" decoding="async" ${propId ? `data-id="${propId}"` : ''}>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Eventos dos botões e imagens do Hero
+      $$('.btn-hero-detail, .hero-thumbs img[data-id]', heroSlides).forEach(elem => {
+        elem.style.cursor = 'pointer';
+        elem.addEventListener('click', () => {
+          const slide = elem.closest('.hero-slide');
+          const btn = slide ? slide.querySelector('.btn-hero-detail') : null;
+          const id = btn ? btn.dataset.id : elem.dataset.id;
+          const item = allEnterprises.find(p => p.id === id);
+          if (item) openModal(item);
+        });
+      });
+
+      // Reinicializa a navegação, setas (próximo/anterior) e dots do slider
+      if (typeof window.initHeroSlider === 'function') {
+        window.initHeroSlider();
+      }
+      return;
+    }
 
     const featured = [];
     const seenIds = new Set();
@@ -1722,6 +1797,11 @@ $$('.fav-btn').forEach(btn => {
   async function init() {
     if (window.SupabaseService && typeof window.SupabaseService.fetchSupabaseEnterprises === 'function') {
       const data = await window.SupabaseService.fetchSupabaseEnterprises();
+      let heroCustom = [];
+      if (typeof window.SupabaseService.fetchSupabaseHeroProperties === 'function') {
+        heroCustom = await window.SupabaseService.fetchSupabaseHeroProperties();
+      }
+
       if (data && data.length > 0) {
         allEnterprises = data;
         
@@ -1729,7 +1809,7 @@ $$('.fav-btn').forEach(btn => {
         aggressivePreloadImages(allEnterprises);
 
         renderProperties(allEnterprises);
-        updateHeroSlides(allEnterprises);
+        updateHeroSlides(allEnterprises, heroCustom);
         bindSearchFilters();
         checkUrlDeepLink();
       }

@@ -295,9 +295,38 @@ async function submitContactForm(formData) {
   }
 }
 
+/**
+ * Busca as configurações dos 3 imóveis de destaque do Hero cadastrados no CRM
+ */
+async function fetchSupabaseHeroProperties() {
+  const endpoint = `${SUPABASE_CONFIG.url}/rest/v1/site_hero_properties?organization_id=eq.${SUPABASE_CONFIG.orgId}&active=eq.true&order=slot_index.asc`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_CONFIG.anonKey,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro Supabase (${response.status}): ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data || [];
+  } catch (error) {
+    console.warn('Hero customizado indisponível via Supabase:', error);
+    return [];
+  }
+}
+
 // Expõe no escopo global para consumo no main.js
 window.SupabaseService = {
   fetchSupabaseEnterprises,
+  fetchSupabaseHeroProperties,
   submitContactForm,
   formatCurrency,
   getStatusTag
