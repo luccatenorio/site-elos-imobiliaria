@@ -1564,32 +1564,15 @@ $$('.fav-btn').forEach(btn => {
     const featured = [];
     const seenIds = new Set();
 
-    // Prioriza o imóvel DEL IARA
-    const delIara = list.find(p => (p.name || '').toUpperCase().includes('DEL IARA'));
-
     for (const item of list) {
       const nameUpper = (item.name || '').toUpperCase();
       // Ignora o loteamento Águas Residence nos destaques do topo
       if (nameUpper.includes('AGUAS RESIDENCE') || nameUpper.includes('LOTEAMENTO')) continue;
 
-      if (item.price > 0 && item.photos && item.photos.length > 0 && !seenIds.has(item.id)) {
-        const hasRealPhoto = item.photos.some(p => typeof p === 'string' && p.startsWith('http'));
-        if (hasRealPhoto) {
-          featured.push(item);
-          seenIds.add(item.id);
-          if (featured.length >= 3) break;
-        }
-      }
-    }
-
-    // Garante a inclusão do Del Iara entre os 3 destaques
-    if (delIara) {
-      if (!seenIds.has(delIara.id)) {
-        if (featured.length >= 3) {
-          featured[2] = delIara;
-        } else {
-          featured.push(delIara);
-        }
+      if (item.photos && item.photos.length > 0 && !seenIds.has(item.id)) {
+        featured.push(item);
+        seenIds.add(item.id);
+        if (featured.length >= 3) break;
       }
     }
 
