@@ -1602,17 +1602,8 @@ $$('.fav-btn').forEach(btn => {
       const cardTopPhoto = item.photos[1] || item.photos[0] || item.mainPhoto;
       const cardBottomPhoto = item.photos[2] || item.photos[1] || item.photos[0] || item.mainPhoto;
 
-      // Suporta tópicos/bullets dinâmicos vindos do campo description (separados por • ou quebra de linha)
-      let bulletItems = [];
-      if (item.description) {
-        bulletItems = item.description.split(/•|\n/).map(b => b.trim()).filter(Boolean);
-      }
-      if (bulletItems.length === 0) {
-        bulletItems = [
-          item.bedrooms > 0 ? `${item.bedrooms} quartos com opções exclusivas` : 'Opções de 2 e 3 quartos',
-          `${item.propertyType || 'Apartamento'} em excelente localização`
-        ];
-      }
+      const bedText = item.bedrooms > 0 ? `${item.bedrooms} quartos com opções exclusivas` : 'Opções de 2 e 3 quartos';
+      const locText = `${item.propertyType || 'Apartamento'} em excelente localização`;
 
       return `
         <article class="hero-slide ${activeClass}" aria-hidden="${ariaHidden}">
@@ -1629,7 +1620,8 @@ $$('.fav-btn').forEach(btn => {
                 <div class="hero-price"><span class="label">Financiamento</span><strong>Facilitado</strong></div>
               </div>
               <ul class="hero-badges">
-                ${bulletItems.map(bullet => `<li>${bullet}</li>`).join('')}
+                <li>${bedText}</li>
+                <li>${locText}</li>
               </ul>
               <div class="hero-actions">
                 <button type="button" class="btn btn-primary btn-hero-detail" data-id="${item.id}">Ver empreendimento <svg class="icon icon-xs btn-arrow" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
