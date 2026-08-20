@@ -1598,14 +1598,25 @@ $$('.fav-btn').forEach(btn => {
     heroSlides.innerHTML = featured.map((item, index) => {
       const activeClass = index === 0 ? 'is-active' : '';
       const ariaHidden = index === 0 ? 'false' : 'true';
-      const thumb1 = item.photos[0] || item.mainPhoto;
-      const thumb2 = item.photos[1] || item.photos[0] || item.mainPhoto;
+      const bgPhoto = item.photos[0] || item.mainPhoto;
+      const cardTopPhoto = item.photos[1] || item.photos[0] || item.mainPhoto;
+      const cardBottomPhoto = item.photos[2] || item.photos[1] || item.photos[0] || item.mainPhoto;
 
-      const bedText = item.bedrooms > 0 ? `${item.bedrooms} quartos com opções exclusivas` : 'Opções de 2 e 3 quartos';
+      // Suporta tópicos/bullets dinâmicos vindos do campo description (separados por • ou quebra de linha)
+      let bulletItems = [];
+      if (item.description) {
+        bulletItems = item.description.split(/•|\n/).map(b => b.trim()).filter(Boolean);
+      }
+      if (bulletItems.length === 0) {
+        bulletItems = [
+          item.bedrooms > 0 ? `${item.bedrooms} quartos com opções exclusivas` : 'Opções de 2 e 3 quartos',
+          `${item.propertyType || 'Apartamento'} em excelente localização`
+        ];
+      }
 
       return `
         <article class="hero-slide ${activeClass}" aria-hidden="${ariaHidden}">
-          <div class="hero-slide-bg" style="background-image:url('${thumb1}')"></div>
+          <div class="hero-slide-bg" style="background-image:url('${bgPhoto}')"></div>
           <div class="hero-overlay"></div>
           <div class="hero-glow" aria-hidden="true"></div>
           <div class="container hero-content">
@@ -1618,8 +1629,7 @@ $$('.fav-btn').forEach(btn => {
                 <div class="hero-price"><span class="label">Financiamento</span><strong>Facilitado</strong></div>
               </div>
               <ul class="hero-badges">
-                <li>${bedText}</li>
-                <li>${item.propertyType} em excelente localização</li>
+                ${bulletItems.map(bullet => `<li>${bullet}</li>`).join('')}
               </ul>
               <div class="hero-actions">
                 <button type="button" class="btn btn-primary btn-hero-detail" data-id="${item.id}">Ver empreendimento <svg class="icon icon-xs btn-arrow" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
@@ -1627,8 +1637,8 @@ $$('.fav-btn').forEach(btn => {
               </div>
             </div>
             <div class="hero-thumbs" data-parallax="18">
-              <img src="${thumb1}" alt="${item.name}" loading="eager" decoding="async">
-              <img src="${thumb2}" alt="${item.name}" loading="eager" decoding="async">
+              <img src="${cardTopPhoto}" alt="${item.name}" loading="eager" decoding="async">
+              <img src="${cardBottomPhoto}" alt="${item.name}" loading="eager" decoding="async">
             </div>
           </div>
         </article>
